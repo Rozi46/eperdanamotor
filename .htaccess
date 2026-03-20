@@ -1,0 +1,11 @@
+<IfModule mime_module>
+    AddHandler application/x-httpd-alt-php84 .php
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /perdanamotor
+    #RewriteCond %{HTTP_HOST} ^(www\.)?eperdanamotor.haghara\.com$ [NC]
+    RewriteRule ^$ public/index.php [L]
+    #RewriteRule ^((?!public/).*)$ public/$1 [L, NC]
+</IfModule>

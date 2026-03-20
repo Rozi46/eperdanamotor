@@ -1,0 +1,215 @@
+/* ===== Global Style ===== */
+@font-face {
+  font-family: 'Poppins';
+  src: url('/font/Poppins/Poppins-Regular.ttf');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient( 135deg, #0f172a 0%, #6d28d9 25%, #3b82f6 50%, #6366f1 75%, #6d28d9 90%, #0f172a 100% );
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Overlay Gelap */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 0;
+}
+
+/* ===== Login Container ===== */
+.login-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  padding: 35px 30px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 0.8s ease;
+  color: #fff;
+}
+
+/* Logo */
+.form_login .logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.form_login .logo img {
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Title */
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ===== Floating Input ===== */
+.floating-label {
+  position: relative;
+  margin: 20px 0;
+}
+
+.floating-label input {
+  width: 100%;
+  padding: 14px 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.floating-label input:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 12px rgba(0, 188, 212, 0.8);
+}
+
+.floating-label label {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  font-size: 15px;
+  color: #bbb;
+  transition: 0.2s;
+  pointer-events: none;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+  top: -10px;
+  left: 8px;
+  font-size: 13px;
+  padding: 0 6px;
+  color: #fff;
+  background: rgba(15,23,42,0.7); /* navy transparan */
+  border-radius: 6px;
+}
+
+/* ===== Checkbox Show Password ===== */
+.form-check-input {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.form-check-label {
+  font-size: 14px;
+  color: #ddd;
+  cursor: pointer;
+  user-select: none;
+}
+
+.show-password {
+  display: flex;
+  align-items: center;
+  margin: 5px 0 15px; /* biar ada jarak rapi */
+  padding-left: 25px;  /* geser sedikit biar sejajar */
+}
+
+.show-password input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.1); /* perbesar dikit biar lebih jelas */
+  cursor: pointer;
+}
+
+.show-password label {
+  font-size: 14px;
+  color: #ddd;
+  cursor: pointer;
+}
+
+
+/* ===== Button ===== */
+.login-container button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #00bcd4, #2196f3);
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-container button:hover {
+  background: linear-gradient(135deg, #0097a7, #1976d2);
+  transform: scale(1.03);
+}
+
+/* ===== Alert ===== */
+.form_login .error_alert {
+  margin-top: 10px;
+}
+
+.form_login .error_alert .alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #ff6b6b;
+  background: rgba(255, 0, 0, 0.35);
+  border: 1px solid rgba(255, 0, 0, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 6px 0;
+}
+
+/* Close */
+.form_login .error_alert .close {
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* ===== Footer ===== */
+.login-footer {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+  color: #ddd;
+}
+
+.login-footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
