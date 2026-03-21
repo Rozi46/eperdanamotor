@@ -2952,10 +2952,10 @@ class SistemController extends Controller
             $request['manual_book'] = $manual_book;
 
             $list_akses = $this->get_akses($request);
-            $level_user = array();
-            $access_rights = array();
-            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
-            array_push($level_user, $access_rights);
+            $level_user = [];
+            foreach ($res_level_user as $menu) {
+                $level_user[$menu['data_menu']] = $menu['access_rights'];
+            }
 
             if($level_user['users'] == 'No' OR $level_user['levelusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
