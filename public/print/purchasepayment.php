@@ -180,7 +180,7 @@
 
         function DrawSignature()
         {
-            $this->Ln(10);
+            $this->Ln(15);
 
             $this->SetFont('Arial','',10);
 
