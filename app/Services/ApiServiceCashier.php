@@ -132,7 +132,7 @@ class ApiServiceCashier
                     //     $link_akses = 'Offline';
                     // }
 
-                    $link_akses = app()->environment('production') ? 'Offline' : 'Online';
+                    $link_akses = app()->environment('production') ? 'Online' : 'Offline';
 
                     $pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                     $otp = substr(str_shuffle(str_repeat($pool, 1)), 0, 1);                    
@@ -193,11 +193,13 @@ class ApiServiceCashier
 
         if($viewadmin && $request->token != null){
 
-            if($request->url() == $url_app.'/logout'){
-                $link_akses = 'Online';
-            }else{
-                $link_akses = 'Offline';
-            }
+            // if($request->url() == $url_app.'/logout'){
+            //     $link_akses = 'Online';
+            // }else{
+            //     $link_akses = 'Offline';
+            // }
+
+            $link_akses = app()->environment('production') ? 'Online' : 'Offline';
 
             $pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $otp = substr(str_shuffle(str_repeat($pool, 1)), 0, 1);                    
