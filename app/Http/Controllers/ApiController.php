@@ -102,7 +102,7 @@ class ApiController extends Controller
             //     $link_akses = 'Offline';
             // }
 
-            $link_akses = app()->environment('production') ? 'Offline' : 'Online';
+            $link_akses = app()->environment('production') ? 'Online' : 'Offline';
 
             $pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $otp = substr(str_shuffle(str_repeat($pool, 1)), 0, 1);                    
