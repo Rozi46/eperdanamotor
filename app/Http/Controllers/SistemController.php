@@ -413,12 +413,12 @@ class SistemController extends Controller
 		
 		$status = $results['status_message'];
 		$note = $results['note'];
-        $results = $results['results'];
+        $getdata = $results['results'];
 
-        if($status == 'success'){            
-        	$detailadmin = $results[0]['detailadmin'][0];
-            $level = $results[0]['detailadmin'][0]['level'];
-            if($level == 'LV7622003'){
+        if($status == 'success'){
+        	$detailadmin = $getdata[0]['detailadmin'][0];
+            
+            if($detailadmin['level']=='LV7622003'){
                 Session::put('key_token_perdana_cash',$results['key_token']);
                 Session::put('admin_login_perdana_cash',$detailadmin['id']);    
                 $this->backup_database();    
