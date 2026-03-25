@@ -37,11 +37,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // Route::group(['middleware' => 'auth.jwt'], function(){
 
 	// Cashier
-		Route::get('/admin/cash', function () {
+		Route::get('/cash', function () {
 			return redirect('/cash/login');
 		});
 
-		Route::get('/admin/cash.login', function () {
+		Route::get('cash.login', function () {
 			return redirect('/cash/login');
 		});
 
@@ -54,7 +54,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 			}
 		});
 
-		Route::get('/admin/cash.dash', function () {
+		Route::get('/cash.dash', function () {
 			return redirect('/cash/dash');
 		});
 
