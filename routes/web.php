@@ -49,7 +49,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 			if(session('admin_login_perdana_cash')){
 				return redirect('cash.dash');
 			}else{
-				return view('cashier.login',['url' => 'login_cashier']);
+				return view('admin.AdminOne.cashier.login',['url' => 'login_cashier']);
 				// return view('maintenance');
 			}
 		});
