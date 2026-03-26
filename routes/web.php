@@ -15,9 +15,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/administration', function () {
         if (Session::get('admin_login_perdana')) {
             return redirect()->route('admin.dash');
-        } else {
-            return view('admin.AdminOne.login', ['url' => 'login']);
-        }
+        } 
+		
+        return view('admin.AdminOne.login', ['url' => 'login']);
     })->name('administration');
 
     // redirect login ke administration
