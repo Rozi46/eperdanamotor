@@ -129,11 +129,20 @@
                         $('input[name="in_code_transaksi"]').val('{{$code_data}}');
                         $('input[name="code_transaksi"]').val('{{$code_data}}');
 
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
-                        $('input[name="tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
+                        // $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
+                        // $('input[name="tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
+
+                        $('input[name="tgl_transaksi"]').val('{{ date("Y-m-d") }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ date("Y-m-d") }}');
                         
+                        // $('input[name="tgl_transaksi"]').change(function(){
+                        //     var value = $('input[name="tgl_transaksi"]').val();
+                        //     $('input[name="in_tgl_transaksi"]').val(value);
+                        //     getcodepurchasepayment();
+                        // });
+
                         $('input[name="tgl_transaksi"]').change(function(){
-                            var value = $('input[name="tgl_transaksi"]').val();
+                            let value = $(this).val();
                             $('input[name="in_tgl_transaksi"]').val(value);
                             getcodepurchasepayment();
                         });
@@ -148,11 +157,12 @@
                         }
 
                         $('input[name="tgl_transaksi"]').datepicker({
-                            format: 'dd MM yyyy',
+                            // format: 'dd MM yyyy',
+                            format: 'yyyy-mm-dd',
                             startDate: '-2y',
                             endDate: '0d',
                             autoclose : true,
-                            language: "id",
+                            // language: "id",
                             orientation: "bottom"
                         });
                         
