@@ -111,7 +111,7 @@
 
 
 			@section('script')
-				<script type="text/javascript">
+				<!-- <script type="text/javascript">
                     $(document).ready(function(){
                         $('input[name="nomor_transaksi"]').val('{{$code_data}}');
                         $('input[name="pembayaran"]').val('0').prop({disabled:true});
@@ -244,7 +244,194 @@
                         });
                     });
 
+                </script> -->
+
+                <script>
+                    $(function () {
+
+                        // ========================
+                        // 🔹 INIT STATE
+                        // ========================
+                        const el = {
+                            tgl: $('input[name="tgl_transaksi"]'),
+                            tglHidden: $('input[name="in_tgl_transaksi"]'),
+                            nomorTransaksi: $('input[name="nomor_transaksi"]'),
+                            kode: $('input[name="code_data"]'),
+                            kodeHidden: $('input[name="in_code_transaksi"]'),
+                            nomorPembelian: $('input[name="nomor_pembelian"]'),
+                            nomorPembelianHidden: $('input[name="in_nomor_pembelian"]'),
+                            supplier: $('input[name="nama_supplier"]'),
+                            hutang: $('input[name="jumlah_hutang"]'),
+                            bayar: $('input[name="jumlah_bayar"]'),
+                            sisa: $('input[name="sisa_hutang"]'),
+                            pembayaran: $('input[name="pembayaran"]'),
+                            btnSave: $('button[name="btn_save"]')
+                        };
+
+                        // ========================
+                        // 🔹 DEFAULT VALUE
+                        // ========================
+                        const today = '{{ date("Y-m-d") }}';
+
+                        el.tgl.val(today);
+                        el.tglHidden.val(today);
+                        el.nomorTransaksi.val('{{$code_data}}');
+                        el.kode.val('{{$code_data}}');
+                        el.kodeHidden.val('{{$code_data}}');
+
+                        disablePembayaran(true);
+                        toggleSave(false);
+
+                        // ========================
+                        // 🔹 DATEPICKER
+                        // ========================
+                        el.tgl.datepicker({
+                            format: 'yyyy-mm-dd',
+                            startDate: '-2y',
+                            endDate: '0d',
+                            autoclose: true,
+                            orientation: "bottom"
+                        }).on('changeDate', function () {
+                            let val = el.tgl.val();
+                            el.tglHidden.val(val);
+                            generateKode();
+                        });
+
+                        // ========================
+                        // 🔹 GENERATE CODE
+                        // ========================
+                        function generateKode() {
+                            $.getJSON(`/admin/getcodepurchasepayment`, {
+                                token: '{{ $request["token"] }}',
+                                u: '{{ $request["u"] }}',
+                                tgl_transaksi: el.tgl.val()
+                            }, function (res) {
+                                el.kode.val(res.code_data);
+                                el.kodeHidden.val(res.code_data);
+                                el.nomorTransaksi.val(res.code_data);
+                            });
+                        }
+
+                        // ========================
+                        // 🔹 AUTOCOMPLETE PO
+                        // ========================
+                        el.nomorPembelian.autocomplete({
+                            minLength: 1,
+                            source: `/admin/listpurchasepayment?token={{ $request['token'] }}&u={{ $request['u'] }}`,
+                            select: function (event, ui) {
+                                let kode = ui.item.code_data;
+
+                                if (!kode) return resetForm();
+
+                                el.nomorPembelianHidden.val(kode);
+
+                                $.getJSON(`/admin/detailpurchasepayment`, {
+                                    token: '{{ $request["token"] }}',
+                                    u: '{{ $request["u"] }}',
+                                    code_data: kode
+                                }, function (res) {
+
+                                    let data = res.results;
+
+                                    el.supplier.val(data.detail_supplier.nama);
+                                    el.hutang.val(data.detail_hutang.jumlah);
+                                    el.bayar.val(data.detail_hutang.bayar);
+                                    el.sisa.val(data.detail_hutang.sisa);
+
+                                    el.pembayaran.val('').prop('disabled', false).focus();
+                                });
+                            }
+                        });
+
+                        // ========================
+                        // 🔹 INPUT PEMBAYARAN
+                        // ========================
+                        el.pembayaran.on('keyup', function () {
+
+                            let bayar = parseFloat(el.pembayaran.val()) || 0;
+                            let sisa = parseFloat(el.sisa.val()) || 0;
+
+                            if (bayar <= 0) {
+                                toggleSave(false);
+                                return;
+                            }
+
+                            if (bayar > sisa) {
+                                showWarning(`Pembayaran melebihi sisa hutang Rp.${sisa}`);
+                                el.pembayaran.val(sisa);
+                                toggleSave(true);
+                                return;
+                            }
+
+                            toggleSave(true);
+                        });
+
+                        // ========================
+                        // 🔹 BUTTON SAVE
+                        // ========================
+                        el.btnSave.on('click', function () {
+                            let nomor = el.nomorPembelian.val();
+                            showConfirm(
+                                `Anda yakin untuk simpan pembayaran pembelian ${nomor}? <br>Setelah simpan maka data tidak bisa diubah kembali!`,
+                                function () {
+                                    $('form[name="form_data"]').submit();
+                                }
+                            );
+                        });
+
+                        // ========================
+                        // 🔹 RESET FORM
+                        // ========================
+                        function resetForm() {
+                            el.nomorPembelianHidden.val('');
+                            el.supplier.val('Nama Supplier');
+                            el.hutang.val('0');
+                            el.bayar.val('0');
+                            el.sisa.val('0');
+                            disablePembayaran(true);
+                        }
+
+                        // ========================
+                        // 🔹 HELPERS
+                        // ========================
+                        function toggleSave(state) {
+                            el.btnSave.prop('disabled', !state);
+                        }
+
+                        function disablePembayaran(state) {
+                            el.pembayaran.val('0').prop('disabled', state);
+                        }
+
+                        function showWarning(msg) {
+                            $('div[data-model="confirmasi"]').modal({backdrop: false});
+                            $('div[data-model="confirmasi"] .modal-body')
+                                .html(`<div class="alert alert-warning">${msg}</div>`);
+                        }
+
+                        function showConfirm(msg, callback) {
+                            let modal = $('div[data-model="confirmasi"]');
+
+                            modal.modal({ backdrop: false });
+
+                            modal.find('.modal-body')
+                                .html(`<div class="alert alert-warning">${msg}</div>`);
+
+                            // HAPUS tombol lama (anti double)
+                            modal.find('#btnConfirm').remove();
+
+                            // TAMBAH tombol baru
+                            modal.find('[btn-action="close-confirmasi"]')
+                                .before(`<button class="btn btn-primary btn-sm" id="btnConfirm">Yakin</button>`);
+
+                            // EVENT TIDAK DOUBLE
+                            $('#btnConfirm').off('click').on('click', function () {
+                                callback();
+                            });
+                        }
+
+                    });
                 </script>
+
             @endsection
 
 @endsection
