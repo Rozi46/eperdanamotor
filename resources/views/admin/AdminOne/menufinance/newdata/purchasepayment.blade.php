@@ -249,9 +249,7 @@
                 <script>
                     $(function () {
 
-                        // ========================
-                        // 🔹 INIT STATE
-                        // ========================
+                        // INIT STATE
                         const el = {
                             tgl: $('input[name="tgl_transaksi"]'),
                             tglHidden: $('input[name="in_tgl_transaksi"]'),
@@ -268,9 +266,7 @@
                             btnSave: $('button[name="btn_save"]')
                         };
 
-                        // ========================
-                        // 🔹 DEFAULT VALUE
-                        // ========================
+                        // DEFAULT VALUE
                         const today = '{{ date("Y-m-d") }}';
 
                         el.tgl.val(today);
@@ -282,9 +278,7 @@
                         disablePembayaran(true);
                         toggleSave(false);
 
-                        // ========================
-                        // 🔹 DATEPICKER
-                        // ========================
+                        // DATEPICKER
                         el.tgl.datepicker({
                             format: 'yyyy-mm-dd',
                             startDate: '-2y',
@@ -297,9 +291,7 @@
                             generateKode();
                         });
 
-                        // ========================
-                        // 🔹 GENERATE CODE
-                        // ========================
+                        // GENERATE CODE
                         function generateKode() {
                             $.getJSON(`/admin/getcodepurchasepayment`, {
                                 token: '{{ $request["token"] }}',
@@ -312,9 +304,7 @@
                             });
                         }
 
-                        // ========================
-                        // 🔹 AUTOCOMPLETE PO
-                        // ========================
+                        // AUTOCOMPLETE PO
                         el.nomorPembelian.autocomplete({
                             minLength: 1,
                             source: `/admin/listpurchasepayment?token={{ $request['token'] }}&u={{ $request['u'] }}`,
@@ -343,9 +333,7 @@
                             }
                         });
 
-                        // ========================
-                        // 🔹 INPUT PEMBAYARAN
-                        // ========================
+                        // INPUT PEMBAYARAN
                         el.pembayaran.on('keyup', function () {
 
                             let bayar = parseFloat(el.pembayaran.val()) || 0;
@@ -366,9 +354,7 @@
                             toggleSave(true);
                         });
 
-                        // ========================
-                        // 🔹 BUTTON SAVE
-                        // ========================
+                        // BUTTON SAVE
                         el.btnSave.on('click', function () {
                             let nomor = el.nomorPembelian.val();
                             showConfirm(
@@ -379,9 +365,7 @@
                             );
                         });
 
-                        // ========================
-                        // 🔹 RESET FORM
-                        // ========================
+                        // RESET FORM
                         function resetForm() {
                             el.nomorPembelianHidden.val('');
                             el.supplier.val('Nama Supplier');
@@ -391,9 +375,7 @@
                             disablePembayaran(true);
                         }
 
-                        // ========================
-                        // 🔹 HELPERS
-                        // ========================
+                        // HELPERS
                         function toggleSave(state) {
                             el.btnSave.prop('disabled', !state);
                         }
