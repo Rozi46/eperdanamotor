@@ -115,7 +115,7 @@
                         // $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
                         // $('input[name="tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
 
-                        $('input[name="tgl_transaksi"]').val('{{ now()->translatedFormat("d F Y") }}');
+                        $('input[name="tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
                         $('input[name="in_tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
 
                         // $('input[name="tgl_transaksi"]').change(function(){
@@ -124,39 +124,39 @@
                         //     getcodepay();
                         // });
 
-                        $('input[name="tgl_transaksi"]').change(function(){
-                            var value = $(this).val().trim();
-                            var bulan = {
-                                'Januari':'01',
-                                'Februari':'02',
-                                'Maret':'03',
-                                'April':'04',
-                                'Mei':'05',
-                                'Juni':'06',
-                                'Juli':'07',
-                                'Agustus':'08',
-                                'September':'09',
-                                'Oktober':'10',
-                                'November':'11',
-                                'Desember':'12'
-                            };
+                        // $('input[name="tgl_transaksi"]').change(function(){
+                        //     var value = $(this).val().trim();
+                        //     var bulan = {
+                        //         'Januari':'01',
+                        //         'Februari':'02',
+                        //         'Maret':'03',
+                        //         'April':'04',
+                        //         'Mei':'05',
+                        //         'Juni':'06',
+                        //         'Juli':'07',
+                        //         'Agustus':'08',
+                        //         'September':'09',
+                        //         'Oktober':'10',
+                        //         'November':'11',
+                        //         'Desember':'12'
+                        //     };
 
-                            var split = value.split(/\s+/);
-                            var hari  = split[0];
-                            var bulanStr = split[1];
-                            var tahun = split[2];
-                            var bulanNum = bulan[bulanStr];
+                        //     var split = value.split(/\s+/);
+                        //     var hari  = split[0];
+                        //     var bulanStr = split[1];
+                        //     var tahun = split[2];
+                        //     var bulanNum = bulan[bulanStr];
 
-                            if(!bulanNum){
-                                console.error('Format bulan tidak dikenali:', bulanStr);
-                                return;
-                            }
+                        //     if(!bulanNum){
+                        //         console.error('Format bulan tidak dikenali:', bulanStr);
+                        //         return;
+                        //     }
 
-                            var formatTanggal = tahun+'-'+bulanNum+'-'+hari.padStart(2,'0');
-                            $('input[name="in_tgl_transaksi"]').val(formatTanggal);
+                        //     var formatTanggal = tahun+'-'+bulanNum+'-'+hari.padStart(2,'0');
+                        //     $('input[name="in_tgl_transaksi"]').val(formatTanggal);
 
-                            getcodepay();
-                        });
+                        //     getcodepay();
+                        // });
         
                         function getcodepay(){     
                             var tgl_transaksi = $('input[name="in_tgl_transaksi"]').val(); 
@@ -167,7 +167,7 @@
                         }
 
                         $('input[name="tgl_transaksi"]').datepicker({
-                            format: 'dd MM yyyy',
+                            format: 'yyyy-mm-dd',
                             startDate: '-2y',
                             endDate: '0d',
                             autoclose : true,

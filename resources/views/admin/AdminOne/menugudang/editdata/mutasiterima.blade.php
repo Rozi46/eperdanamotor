@@ -157,8 +157,8 @@
                         $('input[name="in_code_transaksi"]').val('{{ $code_data ?? ''}}');
                         $('input[name="code_transaksi"]').val('{{ $code_data ?? 'Belum ditentukan' }}');
 
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
-                        $('input[name="tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
+                        $('input[name="tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
                         
                         $('input[name="code_transaksi"]').keyup(function(){
                             var value = $('input[name="code_transaksi"]').val();
@@ -171,7 +171,7 @@
                         });
 
                         $('input[name="tgl_transaksi"]').datepicker({
-                            format: 'dd MM yyyy',
+                            format: 'yyyy-mm-dd',
                             startDate: '-1y',
                             endDate: '0d',
                             autoclose : true,
@@ -193,8 +193,8 @@
                         $('input[name="in_no_pembelian"]').val('{{ $results['results']['detail_mutasi_kirim']['nomor'] ?? ''}}');
                         $('input[name="gudang_asal"]').val('{{ $results['results']['detail_gudang_asal']['nama'] ?? 'Belum ditentukan' }}');
                         $('input[name="gudang_tujuan"]').val('{{ $results['results']['detail_gudang_tujuan']['nama'] ?? 'Belum ditentukan' }}');
-                        $('input[name="tgl_transaksi"]').val('{{ Date::parse($results['results']['detail_mutasi_terima']['tanggal'])->format('d F Y') }}');
-                        $('input[name="in_tgl_transaksi"]').val('{{ Date::parse($results['results']['detail_mutasi_terima']['tanggal'])->format('d F Y') }}');
+                        $('input[name="tgl_transaksi"]').val('{{ Date::parse($results['results']['detail_mutasi_terima']['tanggal'])->format('Y-m-d') }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ Date::parse($results['results']['detail_mutasi_terima']['tanggal'])->format('Y-m-d') }}');
                         $('input[name="keterangan"]').val('{{ $results['results']['detail_mutasi_terima']['ket'] ?? 'Belum ditentukan' }}');
 
                         $('[line="list_produk_transakasi"]').html('<tr><td style="text-align:center; padding: 20px; background-color: #FFFFFF; cursor: default; font-weight: 600; height: 300px; font-size: 14px;" colspan="20"><div class="col-md-12 load_data_i text-center"> <div class="spinner-grow spinner-grow-sm text-muted"></div> <div class="spinner-grow spinner-grow-sm text-secondary"></div> <div class="spinner-grow spinner-grow-sm text-dark"></div></div></td></tr>');

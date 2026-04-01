@@ -50,7 +50,7 @@
                                                     <div class="input-group-append" btn="tgl_view" line="tgl_transaksi">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                     </div>
-                                                    <input class="pointer" type="text" name="tgl_transaksi" placeholder="Tanggal Penjualan" value="<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>" readonly="true">
+                                                    <input class="pointer" type="text" name="tgl_transaksi" placeholder="Tanggal Penjualan" value="" readonly="true">
                                                 </div>
                                             </div>
                                         </div>
@@ -117,19 +117,21 @@
 			@section('script')
 				<script type="text/javascript">
                     $(document).ready(function(){
+
+                        $('input[name="code_data"]').val('{{$code_data}}');
+                        $('input[name="code_transaksi"]').val('{{$code_data}}');
+
+                        $('input[name="tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
+                        
                         $('input[name="tgl_transaksi"]').datepicker({
-                            format: 'dd MM yyyy',
+                            format: 'yyyy-mm-dd',
                             startDate: '-1y',
                             endDate: '0d',
                             autoclose : true,
                             language: "id",
                             orientation: "bottom"
                         });
-
-                        $('input[name="code_data"]').val('{{$code_data}}');
-                        $('input[name="code_transaksi"]').val('{{$code_data}}');
-
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>'); 
                         
                         $('input[name="tgl_transaksi"]').change(function(){
                             var value = $('input[name="tgl_transaksi"]').val();

@@ -10,10 +10,7 @@
                     <div class="collapse navbar-collapse" id="NavMenu">
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a load="true" class="nav-link" href="/admin/downloadmanualbook?d={{ $request['manual_book'] }}"><i class="fa fa-book"></i>E-Book</a>
-                            </li>
-                            <li class="nav-item">
-                                <a load="true" class="nav-link" href="/admin/editaccount"><img src="<?php if( $res_user['image'] == 'no_img'){echo asset('/themes/admin/AdminOne/image/no_image.jpg'); }else{echo asset('/themes/admin/AdminOne/image/upload/'.$res_user['image'].'');}?>" alt="User">{{ $request['nama_admin'] }}</a>
+                                <a load="true" class="nav-link" href="#"><img src="<?php if( $res_user['image'] == 'no_img'){echo asset('/themes/admin/AdminOne/image/no_image.jpg'); }else{echo asset('/themes/admin/AdminOne/image/upload/'.$res_user['image'].'');}?>" alt="User">{{ $request['nama_admin'] }}</a>
                             </li>
                             <li class="nav-item">
                                 <a load="true" class="nav-link" href="/cash/logout"><i class="fa fa-power-off"></i> Keluar</a>

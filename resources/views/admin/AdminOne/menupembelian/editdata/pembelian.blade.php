@@ -226,8 +226,8 @@
 
                         $('input[name="full_name"]').val('{{ $results['results']['user_transaksi']['full_name'] ?? 'Belum ditentukan' }}');   
                         $('input[name="code_data"]').val('{{ $results['results']['detail']['code_data'] ?? 'Belum ditentukan' }}');
-                        $('input[name="tgl_transaksi"]').val('<?php echo Date::parse($results['results']['detail']['tanggal'])->format('d F Y'); ?>');
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse($results['results']['detail']['tanggal'])->format('d F Y'); ?>');
+                        $('input[name="tgl_transaksi"]').val('{{ $results['results']['detail']['tanggal'] }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ $results['results']['detail']['tanggal'] }}');
                         $('input[name="code_transaksi"]').val('{{$results['results']['detail']['nomor'] ?? 'Belum ditentukan' }}');
                         $('input[name="in_code_transaksi"]').val('{{$results['results']['detail']['nomor'] ?? '' }}');
                         $('input[name="in_data_perusahaan"]').val('{{$results['results']['detail']['kode_kantor'] ?? '' }}');

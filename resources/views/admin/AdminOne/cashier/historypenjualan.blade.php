@@ -19,17 +19,7 @@
 						<div class="col-md-12 bg_page_main dt" style="padding-bottom: 2px;">
 							<div class="col-md-12 bg_act_page_main page">
 								<div class="row">
-									<div class="col-xl-12 col_act_page_main text-right">
-										@include('admin.AdminOne.layout.pagination')
-									</div>
-								</div>
-							</div>
-						</div>
-						<!-- <div class="col-md-12 bg_page_main form_action dt"> -->
-						<div class="col-md-12 bg_page_main dt">
-							<div class="col-md-12 bg_act_page_main page">
-								<div class="row">
-									<div class="col-xl-12 col_act_page_main text-left" style="margin-bottom:6px;">
+									<div class="col-xl-8 col_act_page_main text-left" style="margin-bottom:2px;">
 										Filter Data 
 										<select name="tipe_data" placeholder="Tipe Penjualan" style="padding-top: 8px; padding-bottom: 6px;">
 											<option value="transaksi">Per Transaksi</option>
@@ -39,8 +29,14 @@
 										- <input type="text" name="datefilterend" placeholder="Sampai tanggal" style="width: 90px; text-align: center; padding-left: 0px; cursor: pointer;" readonly="" value="<?php echo Date::parse($datefilterend)->format('d M Y'); ?>" />
 										<button type="button" class="btn btn-default filter" onclick="datefilter()">Filter</button>
 									</div>
+									<div class="col-xl-4 col_act_page_main text-right">
+										@include('admin.AdminOne.layout.pagination')
+									</div>
 								</div>
 							</div>
+						</div>
+						<!-- <div class="col-md-12 bg_page_main form_action dt"> -->
+						<div class="col-md-12 bg_page_main dt">
 							<div class="col-md-12 data_page">
 								<div class="row bg_data_page">
 									<div class="table_data freezeHead freezeCol">

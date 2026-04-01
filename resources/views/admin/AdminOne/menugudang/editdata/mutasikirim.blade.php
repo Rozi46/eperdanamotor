@@ -68,7 +68,7 @@
                                                     <div class="input-group-append" btn="tgl_view" line="tgl_transaksi">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                     </div>
-                                                    <input class="pointer" type="text" name="tgl_transaksi" placeholder="Tanggal Mutasi" value="{{ !empty($view_data['tanggal']) ? Date::parse($view_data['tanggal'])->format('d F Y') : 'Belum ditentukan' }}" readonly>
+                                                    <input class="pointer" type="text" name="tgl_transaksi" placeholder="Tanggal Mutasi" value="{{ $results['results']['detail']['tanggal'] ?? 'Belum ditentukan' }}" readonly>
                                                     
                                                 </div>
                                             </div>
@@ -181,7 +181,7 @@
                         $inGudangAsal.val('{{ $results['results']['detail']['kode_gudang_asal'] ?? '' }}');    
                         $inGudangTujuan.val('{{ $results['results']['detail']['kode_gudang_tujuan'] ?? '' }}');
                         $tglTransaksi.prop({disabled:true}).removeClass('pointer');
-                        $inTglTransaksi.val('<?php echo Date::parse($results['results']['detail']['tanggal'])->format('d F Y') ?>');
+                        $inTglTransaksi.val('{{ $results['results']['detail']['tanggal'] }}');
                         $codeTransaksi.prop({disabled:true});
                         $fullName.val('{{ $results['results']['user_transaksi']['full_name'] ?? 'Belum ditentukan' }}');    
                         $codeTransaksi.val('{{ $results['results']['detail']['nomor'] ?? 'Belum ditentukan' }}');  

@@ -223,7 +223,7 @@
 
 
 			@section('script')
-				<script type="text/javascript">
+				<!-- <script type="text/javascript">
                     $(document).ready(function(){
                         $('select[name="gudang"] option[value=""]').prop("selected", true);
                         $('input[name="in_gudang"]').val('null');
@@ -281,7 +281,7 @@
                         //  });   
 
                         $('input[name="tgl_transaksi"]').datepicker({
-                            format: 'dd MM yyyy',
+                            format: 'yyyy-mm-dd',
                             startDate: '-1y',
                             endDate: '0d',
                             autoclose: true,
@@ -469,6 +469,152 @@
 
 
 
+                </script> -->
+
+                <script>
+                    $(function () {
+
+                        const el = {
+                            gudang: $('select[name="gudang"]'),
+                            customer: $('input[name="customer"]'),
+                            inCustomer: $('input[name="in_customer"]'),
+                            dataProduk: $('input[name="data_produk"]'),
+                            tgl: $('input[name="tgl_transaksi"]'),
+                            inTgl: $('input[name="in_tgl_transaksi"]'),
+                            mekanik: $('#nama_mekanik'),
+                        };
+
+                        const state = {
+                            token: "{{ $request['token'] }}",
+                            user: "{{ $request['u'] }}"
+                        };
+
+                        // =========================
+                        // INIT
+                        // =========================
+                        initDefault();
+                        initDatepicker();
+                        initSelect2();
+                        initAutocomplete();
+
+                        function initDefault() {
+                            el.dataProduk.val('').focus();
+
+                            el.inCustomer.val('aa9c66df-5f5a-494b-aa2c-ea60031fcc68');
+                            el.customer.val('Customer - Bukittinggi');
+
+                            el.gudang.val('0a864ba3-d838-11eb-8038-204747ab6caa');
+
+                            let today = "{{ now()->format('Y-m-d') }}";
+                            el.tgl.val(today);
+                            el.inTgl.val(today);
+                        }
+
+                        // =========================
+                        // DATEPICKER
+                        // =========================
+                        function initDatepicker() {
+                            el.tgl.datepicker({
+                                format: 'yyyy-mm-dd',
+                                autoclose: true,
+                                endDate: '0d',
+                                orientation: "bottom"
+                            }).on('change', function () {
+                                el.inTgl.val($(this).val());
+                            });
+                        }
+
+                        // =========================
+                        // SELECT2
+                        // =========================
+                        function initSelect2() {
+                            el.mekanik.select2({
+                                placeholder: 'Pilih Mekanik',
+                                allowClear: true,
+                                width: '100%'
+                            });
+                        }
+
+                        // =========================
+                        // AUTOCOMPLETE
+                        // =========================
+                        function initAutocomplete() {
+
+                            el.customer.autocomplete({
+                                minLength: 1,
+                                source: `/cash/listopcustomer?token=${state.token}&u=${state.user}`,
+                                select: function (e, ui) {
+                                    el.inCustomer.val(ui.item.code_data);
+                                }
+                            });
+
+                            el.dataProduk.autocomplete({
+                                minLength: 1,
+                                source: `/cash/listbarangtransaksi?token=${state.token}&u=${state.user}`,
+                                select: function (e, ui) {
+                                    if (ui.item.code_data) {
+                                        orderProduk(ui.item.code_data);
+                                    }
+                                }
+                            });
+                        }
+
+                        // =========================
+                        // ORDER PRODUK (AJAX)
+                        // =========================
+                        function orderProduk(produk) {
+
+                            toggleLoading(true);
+
+                            const payload = {
+                                _token: "{{ csrf_token() }}",
+                                token: state.token,
+                                u: state.user,
+                                code_data: $('input[name="code_data"]').val(),
+                                code_transaksi: $('input[name="in_code_transaksi"]').val(),
+                                tgl_transaksi: el.inTgl.val(),
+                                code_customer: el.inCustomer.val(),
+                                code_mekanik: el.mekanik.val(),
+                                code_gudang: el.gudang.val(),
+                                type_harga: $('select[name="type_harga"]').val(),
+                                jenis_penjualan: $('select[name="jenis_penjualan"]').val(),
+                                keterangan: $('input[name="keterangan"]').val(),
+                                code_produk: produk,
+                                qty: 1
+                            };
+
+                            $.post('/cash/saveprodpenjualan', payload)
+                                .done(handleSuccess)
+                                .fail(handleError)
+                                .always(() => toggleLoading(false));
+                        }
+
+                        function handleSuccess(res) {
+                            if (res.status_message === 'failed') {
+                                showError(res.note?.code_transaksi
+                                    ? 'No. Penjualan sudah terdaftar'
+                                    : 'Data gagal disimpan');
+                                return;
+                            }
+
+                            window.location.href = `/cash/viewpenjualan?d=${res.code}`;
+                        }
+
+                        function handleError() {
+                            showError('Server error, coba lagi');
+                        }
+
+                        function toggleLoading(state) {
+                            $('.bg_act_page_main button').prop('disabled', state);
+                            el.dataProduk.prop('disabled', state);
+                        }
+
+                        function showError(msg) {
+                            alert(msg); // bisa diganti sweetalert
+                        }
+
+                    });
                 </script>
+
             @endsection
 @endsection

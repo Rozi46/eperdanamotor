@@ -210,8 +210,8 @@
                         $('input[name="in_code_transaksi"]').val('{{$code_data}}');
                         $('input[name="code_transaksi"]').val('{{$code_data}}');
 
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
-                        $('input[name="tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
+                        $('input[name="tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
                         
                         $('input[name="code_transaksi"]').keyup(function(){
                             var value = $('input[name="code_transaksi"]').val();
@@ -241,7 +241,7 @@
                         });
 
                         $('input[name="tgl_transaksi"]').datepicker({
-                            format: 'dd MM yyyy',
+                            format: 'yyyy-mm-dd',
                             startDate: '-1y',
                             endDate: '0d',
                             autoclose : true,

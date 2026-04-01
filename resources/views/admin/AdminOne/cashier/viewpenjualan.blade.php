@@ -249,8 +249,8 @@
                         
                         $('input[name="full_name"]').val('{{ $results['results']['user_transaksi']['full_name'] ?? 'Belum Ditentukan' }}');    
                         $('input[name="code_data"]').val('{{ $results['results']['detail']['code_data'] ?? 'Belum Ditentukan' }}');
-                        $('input[name="tgl_transaksi"]').val('<?php echo Date::parse($results['results']['detail']['tanggal'])->format('d F Y'); ?>');
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse($results['results']['detail']['tanggal'])->format('d F Y'); ?>');
+                        $('input[name="tgl_transaksi"]').val('{{ $results['results']['detail']['tanggal'] }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ $results['results']['detail']['tanggal'] }}');
                         $('input[name="code_transaksi"]').val('{{ $results['results']['detail']['nomor'] ?? 'Belum Ditentukan' }}');
                         $('input[name="in_code_transaksi"]').val('{{ $results['results']['detail']['nomor'] ?? '' }}');
                         $('input[name="in_data_perusahaan"]').val('{{ $results['results']['detail']['kode_kantor'] ?? '' }}');    
@@ -407,6 +407,7 @@
                         $('input[name="data_produk"]').prop({disabled:true});
 
                         $('[line="list_produk_transakasi"]').html('<tr><td style="text-align:center; padding: 20px; background-color: #FFFFFF; cursor: default; font-weight: 600; height: 300px; font-size: 14px;" colspan="20"><div class="col-md-12 load_data_i text-center"> <div class="spinner-grow spinner-grow-sm text-muted"></div> <div class="spinner-grow spinner-grow-sm text-secondary"></div> <div class="spinner-grow spinner-grow-sm text-dark"></div></div></td></tr>');
+                        
                         // Ambil nilai dari form
                         var codeData = $('input[name="code_data"]').val();
                         var codeTransaksi = $('input[name="in_code_transaksi"]').val();
@@ -457,6 +458,193 @@
                     }
 
                 </script>
+
+                <!-- <script>
+                    $(function () {
+                        const el = {
+                            produk: $('[name="data_produk"]'),
+                            customer: $('[name="customer"]'),
+                            inCustomer: $('[name="in_customer"]'),
+                            mekanik: $('#nama_mekanik'),
+                            table: $('[line="list_produk_transakasi"]'),
+                            pembayaran: $('[name="list_pembayaran"]'),
+                            kembalian: $('#list_kembalian')
+                        };
+
+                        const state = {
+                            token: "{{ $request['token'] }}",
+                            user: "{{ $request['u'] }}",
+                            kode: "{{ $results['results']['detail']['nomor'] }}",
+                            total: {{ $results['results']['detail']['grand_total'] ?? 0 }}
+                        };
+
+                        init();
+
+                        // =====================
+                        // INIT
+                        // =====================
+                        function init() {
+                            initSelect2();
+                            initAutocomplete();
+                            initProdukList();
+                            initPembayaran();
+                            bindActions();
+                        }
+
+                        function initSelect2() {
+                            el.mekanik.select2({
+                                placeholder: 'Pilih Mekanik',
+                                allowClear: true,
+                                width: '100%'
+                            });
+                        }
+
+                        // =====================
+                        // AUTOCOMPLETE
+                        // =====================
+                        function initAutocomplete() {
+                            const perusahaan = $('[name="in_data_perusahaan"]').val();
+
+                            el.produk.autocomplete({
+                                minLength: 1,
+                                source: `/cash/listbarangtransaksi?token=${state.token}&u=${state.user}&code_perusahaan=${perusahaan}`,
+                                select: (e, ui) => ui.item.code_data && orderProduk(ui.item.code_data)
+                            });
+
+                            el.customer.autocomplete({
+                                minLength: 1,
+                                source: `/cash/getopcustomer?token=${state.token}&u=${state.user}&code_perusahaan=${perusahaan}`,
+                                select: (e, ui) => el.inCustomer.val(ui.item.code_data)
+                            });
+                        }
+
+                        // =====================
+                        // LOAD PRODUK
+                        // =====================
+                        function initProdukList() {
+                            renderLoading();
+
+                            $.get('/cash/listprodpenjualan', {
+                                code_data: state.kode
+                            }, function (html) {
+                                el.table.html(html);
+                                el.produk.prop('disabled', false).focus();
+                            });
+                        }
+
+                        function renderLoading() {
+                            el.table.html(`<tr>
+                                <td colspan="20" class="text-center p-4">
+                                    <div class="spinner-border"></div>
+                                </td>
+                            </tr>`);
+                        }
+
+                        // =====================
+                        // ORDER PRODUK
+                        // =====================
+                        function orderProduk(produk) {
+
+                            toggleLoading(true);
+                            renderLoading();
+
+                            const payload = {
+                                _token: "{{ csrf_token() }}",
+                                token: state.token,
+                                u: state.user,
+                                code_data: $('[name="code_data"]').val(),
+                                code_transaksi: $('[name="in_code_transaksi"]').val(),
+                                tgl_transaksi: $('[name="in_tgl_transaksi"]').val(),
+                                code_customer: el.inCustomer.val(),
+                                code_gudang: $('[name="in_gudang"]').val(),
+                                type_harga: $('[name="type_harga"]').val(),
+                                jenis_penjualan: $('[name="jenis_penjualan"]').val(),
+                                keterangan: $('[name="keterangan"]').val(),
+                                code_produk: produk,
+                                qty: 1
+                            };
+
+                            $.post('/cash/saveprodpenjualan', payload)
+                                .done(() => initProdukList())
+                                .fail(() => showError('Gagal simpan produk'))
+                                .always(() => toggleLoading(false));
+                        }
+
+                        // =====================
+                        // PEMBAYARAN
+                        // =====================
+                        function initPembayaran() {
+                            el.pembayaran.val(0);
+
+                            el.pembayaran.on('keyup change', function () {
+                                const bayar = parseFloat($(this).val()) || 0;
+                                const kembali = bayar - state.total;
+
+                                el.kembalian.text(
+                                    kembali > 0 ? formatRupiah(kembali) : 'Rp 0,00'
+                                );
+                            });
+                        }
+
+                        function formatRupiah(num) {
+                            return new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR'
+                            }).format(num);
+                        }
+
+                        // =====================
+                        // BUTTON ACTION
+                        // =====================
+                        function bindActions() {
+
+                            $('[name="btn_cancel"]').click(() => confirmAction(
+                                'Batalkan transaksi?',
+                                `/cash/deletepenjualan?d=${state.kode}`
+                            ));
+
+                            $('[name="btn_pending"]').click(() => submitAction('pendingpenjualan'));
+
+                            $('[name="btn_save"]').click(() => submitAction('updatepenjualan', true));
+                        }
+
+                        function submitAction(url, print = false) {
+
+                            const params = $.param({
+                                d: state.kode,
+                                customer: el.inCustomer.val(),
+                                jenis_penjualan: $('[name="jenis_penjualan"]').val(),
+                                ket: $('[name="keterangan"]').val(),
+                                code_mekanik: el.mekanik.val()
+                            });
+
+                            confirmAction('Lanjutkan proses?', `/cash/${url}?${params}`, print);
+                        }
+
+                        function confirmAction(msg, url, print = false) {
+                            if (!confirm(msg)) return;
+
+                            window.location.href = url;
+
+                            if (print) {
+                                window.open(`/cash/printsalesorder?d=${state.kode}`);
+                            }
+                        }
+
+                        // =====================
+                        // UTIL
+                        // =====================
+                        function toggleLoading(state) {
+                            el.produk.prop('disabled', state);
+                            $('.bg_act_page_main button').prop('disabled', state);
+                        }
+
+                        function showError(msg) {
+                            alert(msg);
+                        }
+
+                    });
+                </script> -->
             @endsection
 
 @endsection

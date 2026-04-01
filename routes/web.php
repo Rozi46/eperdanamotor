@@ -5,27 +5,30 @@ use Illuminate\Support\Facades\{Route, Session};
 use App\Http\Controllers\{SistemController,ActionController,ApiController};
 
 Route::prefix('admin')->name('admin.')->group(function () {
+
     // /admin
     Route::get('/', function () {
-        return redirect()->route('administration');
+        return redirect()->route('admin.administration');
     });
 
     // /admin/administration
     Route::get('/administration', function () {
         if (Session::get('admin_login_perdana')) {
-            return redirect()->route('dash');
-        }else{		
-        	return view('admin.AdminOne.login', ['url' => 'login']);
-		}
+            return redirect()->route('admin.dash');
+        } else {
+            return view('admin.AdminOne.login', ['url' => 'login']);
+        }
     })->name('administration');
 
     // redirect login ke administration
     Route::get('/login', function () {
-        return redirect()->route('administration');
+        return redirect()->route('admin.administration');
     })->name('login');
 
     // auth process
     Route::post('/login', [SistemController::class, 'login']);
+
+    // logout
     Route::get('/logout', [SistemController::class, 'logout'])->name('logout');
 
     // dashboard

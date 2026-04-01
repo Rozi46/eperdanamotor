@@ -151,8 +151,8 @@
                         $('input[name="in_code_transaksi"]').val('{{ $code_data }}');
                         $('input[name="code_transaksi"]').val('{{$code_data}}');
 
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
-                        $('input[name="tgl_transaksi"]').val('<?php echo Date::parse(date("d F Y"))->add(0, 'day')->format('d F Y'); ?>');
+                        $('input[name="tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ now()->format("Y-m-d") }}');
                         
                         $('input[name="code_transaksi"]').keyup(function(){
                             var value = $('input[name="code_transaksi"]').val();
@@ -165,7 +165,7 @@
                         });
 
                         $('input[name="tgl_transaksi"]').datepicker({
-                            format: 'dd MM yyyy',
+                            format: 'yyyy-mm-dd',
                             startDate: '-1y',
                             endDate: '0d',
                             autoclose : true,
@@ -191,8 +191,8 @@
                         $('input[name="supplier"]').val('{{ $results['results']['detail_supplier']['nama'] ?? 'Belum Ditentukan' }}');
                         $('input[name="gudang"]').val('{{ $results['results']['detail_gudang']['nama'] ?? 'Belum Ditentukan' }}');
 
-                        $('input[name="tgl_transaksi"]').val('<?php echo Date::parse($results['results']['detail']['tanggal'])->format('d F Y'); ?>');
-                        $('input[name="in_tgl_transaksi"]').val('<?php echo Date::parse($results['results']['detail']['tanggal'])->format('d F Y'); ?>');
+                        $('input[name="tgl_transaksi"]').val('{{ $results['results']['detail']['tanggal'] }}');
+                        $('input[name="in_tgl_transaksi"]').val('{{ $results['results']['detail']['tanggal'] }}');
 
                         $('input[name="no_do"]').val('{{ $results['results']['detail']['nomor_penerimaan'] ?? 'Belum Ditentukan' }}');
 

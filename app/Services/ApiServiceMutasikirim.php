@@ -574,6 +574,55 @@ class ApiServiceMutasikirim
 
     public function deletemutasikirim($request)
     {
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+
+        if (!$viewadmin) {
+            return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','results' => []], 401);
+        }
+
+        $menus = ['mutasikirim', 'historymutasikirim'];
+        $access = LevelAdmin::where('code_data', $viewadmin->level)->whereIn('data_menu', $menus)->pluck('access_rights', 'data_menu');
+
+        if (
+            ($access['mutasikirim'] ?? 'No') === 'No' ||
+            ($access['historymutasikirim'] ?? 'No') === 'No'
+        ) {
+            return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => []], 403);
+        }
+
+        $mutasi = Mutasi::where('kode_kantor', $viewadmin->kode_kantor)->where('nomor', $request->code_data)->first();
+
+        if (!$mutasi) {
+            return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','results' => []], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            Mutasi::where('kode_kantor', $viewadmin->kode_kantor)->where('nomor', $mutasi->nomor)->delete();
+
+            MutasiKirim::where('kode_kantor', $viewadmin->kode_kantor)->where('code_data', $request->code_data)->delete();
+
+            $code = ltrim(now()->format('YmdHis') . Str::random(1), '0');
+            Activity::create([
+                'id'           => Str::uuid(),
+                'code_data'    => $code,
+                'kode_user'    => $viewadmin->id,
+                'activity'     => "Membatalkan mutasi kirim [{$mutasi->nomor}]",
+                'kode_kantor'  => $viewadmin->kode_kantor,
+            ]);
+
+            DB::commit();
+            return response()->json(['status_message' => 'success','note' => 'Data berhasil dihapus','results' => []]);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'results' => []], 500);
+        }
+    }
+
+    public function deletemutasikirim2($request)
+    {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
 
