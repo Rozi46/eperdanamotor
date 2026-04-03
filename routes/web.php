@@ -4,37 +4,27 @@ require __DIR__.'/api.php';
 use Illuminate\Support\Facades\{Route, Session};
 use App\Http\Controllers\{SistemController,ActionController,ApiController};
 
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    // /admin
-    Route::get('/', function () {
-        return redirect()->route('admin.administration');
-    });
-
-    // /admin/administration
-    Route::get('/administration', function () {
-        if (Session::get('admin_login_perdana')) {
-            return redirect()->route('admin.dash');
-        } else {
-            return view('admin.AdminOne.login', ['url' => 'login']);
-        }
-    })->name('administration');
-
-    // redirect login ke administration
-    Route::get('/login', function () {
-        return redirect()->route('admin.administration');
-    })->name('login');
-
-    // auth process
-    Route::post('/login', [SistemController::class, 'login']);
-
-    // logout
-    Route::get('/logout', [SistemController::class, 'logout'])->name('logout');
-
-    // dashboard
-    Route::get('/dash', [SistemController::class, 'dash'])->name('dash');
-
+Route::get('/admin', function () {
+    // return view('welcome']);
+    return redirect()->route('administration');
 });
+
+Route::get('/admin/administration', function () {
+    if (Session::get('admin_login_perdana')) {
+        return redirect()->route('dash');
+	}else{
+		return view('admin.AdminOne.login', ['url' => 'login']);
+		// return view('maintenance']);
+    }
+})->name('administration');
+
+Route::get('/admin/login', function () { 
+    return redirect()->route('administration');
+})->name('login');
+
+Route::post('/admin/login',[SistemController::class, 'login']);
+Route::get('/admin/logout',[SistemController::class, 'logout'])->name('logout');
+Route::get('/admin/dash',[SistemController::class, 'dash'])->name('dash');
 
 // Route::group(['middleware' => 'auth.jwt'], function(){
 
