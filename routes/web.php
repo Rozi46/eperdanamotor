@@ -22,6 +22,8 @@ Route::get('/admin/login', function () {
     return redirect()->route('administration');
 })->name('login');
 
+Route::post('/cash/login',[SistemController::class, 'loginCashier']);
+
 Route::post('/admin/login',[SistemController::class, 'login']);
 Route::get('/admin/logout',[SistemController::class, 'logout'])->name('logout');
 Route::get('/admin/dash',[SistemController::class, 'dash'])->name('dash');
