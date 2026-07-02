@@ -60,7 +60,7 @@ class ApiServiceHutang
             foreach($results['list'] as $key => $data){             
                 $results['user_input'][$data->code_data] = User::Where('kode_kantor',$viewadmin->kode_kantor)->where('id', $data->kode_user)->first();
                 $results['detail_perusahaan'][$data->code_data] = Kantor::select('kantor')->where('id', $data->kode_kantor)->first();
-                $results['detail_pembelian'][$data->code_data] = Pembelian::where('nomor', $data->nomor)->first();
+                $results['detail_pembelian'][$data->code_data] = Pembelian::where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $data->nomor)->first();
                 $results['detail_supplier'][$data->code_data] = Supplier::where('id', $results['detail_pembelian'][$data->code_data]->kode_supplier)->first();
                 
                 // Ambil semua tanggal bayar terkait dengan transaksi ini

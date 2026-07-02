@@ -22,8 +22,10 @@ use Cookie;
 use JWTAuth;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class DataHutangAll implements FromView
+class DataHutangAll implements FromView, WithColumnFormatting
 {
     public $request;
 
@@ -54,12 +56,22 @@ class DataHutangAll implements FromView
             $get_user = is_array($get_user) ? $get_user : $get_user->getData(true);  
             $res_user = $get_user['results'][0]['detailadmin'][0];
 
-            $response = app('App\Services\ApiServiceHutang')->listhutangpersupplier($request);
+            $response = app('App\Services\ApiServiceHutang')->listhutang($request);
             $results = is_array($response) ? $response : $response->getData(true); 
 
             // return $results;
 
             return view('admin.AdminOne.menufinance.exportdata.datahutang',['url_api' => $url_api,'app' => 'menufinance','url_active' => 'menuhutang','request' => $request,'res_user' => $res_user,'results' => $results['results']['list'],'listdata' => $results['results']]);
         }
+    }
+    
+    public function columnFormats(): array
+    {
+        // urutan kolom berdasarkan header tabel export excel, A dimulai No
+        return [
+            'G' => '#,##0.00', //total hutang
+            'H' => '#,##0.00', //bayar
+            'I' => '#,##0.00', //sisa
+        ];
     }
 }
