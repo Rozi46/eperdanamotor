@@ -7,7 +7,7 @@
                 <div class="container-fluid text-left">
                     <div class="row">
                         <div class="col-md-12 bg_page_main hd" line="hd_action">
-                            <div class="col-md-12 hd_page_main">Data Hutang</div>
+                            <div class="col-md-12 hd_page_main">Data Hutang Per Transaksi</div>
 							<div class="col-md-12 bg_act_page_main">
 								<div class="row">
 									<div class="col-xl-12 col_act_page_main text-left">
