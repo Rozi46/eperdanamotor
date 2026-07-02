@@ -46,7 +46,7 @@ class DataHutangAll implements FromView, WithColumnFormatting
         $request['u'] = $admin_login;
         $request['token'] = $key_token;
 
-        $request['vd'] = '999999999999999';
+        $request['vd'] = '99999999999999';
         $request['type'] = 'export';
 
     	if(empty(session('key_token_perdana'))){
