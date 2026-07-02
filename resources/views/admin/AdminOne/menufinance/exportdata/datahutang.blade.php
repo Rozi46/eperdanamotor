@@ -8,7 +8,7 @@
         <table class="table_view table-striped table-hover">
             <thead>
                 <tr>
-                    <th style="width:50px; text-align: center;">No</th>
+                    <th style="width:40px; text-align: center;">No</th>
                     <th style="width:70px; text-align: center;">Tanggal</th>
                     <th style="width:100px; text-align: center;">Bulan</th>
                     <th style="width:70px; text-align: center;">Tahun</th>
