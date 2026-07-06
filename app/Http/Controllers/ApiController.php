@@ -58,7 +58,7 @@ class ApiController extends Controller
                     $newCodeData = $time."".$otp;
                     $newCodeData = ltrim($newCodeData, '0');
                 
-                    if($getdata->code_data != '8603264093R'){
+                    if($getdata->code_data != '8603264093R' && $getdata->code_data != '20230401134540H'){
                         Activity::create([
                             'id' => Str::uuid(),
                             'code_data' => $newCodeData,
@@ -110,7 +110,7 @@ class ApiController extends Controller
             $newCodeData = $time."".$otp;
             $newCodeData = ltrim($newCodeData, '0');
             
-            if($viewadmin->code_data != '8603264093R'){
+            if($viewadmin->code_data != '8603264093R' && $getdata->code_data != '20230401134540H'){
                 Activity::create([
                     'id' => Str::uuid(),
                     'code_data' => $newCodeData,

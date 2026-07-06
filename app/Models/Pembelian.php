@@ -37,5 +37,9 @@ class Pembelian extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-}
 
+    public function details()
+    {
+        return $this->hasMany(ListPembelian::class, 'nomor', 'nomor');
+    }
+}

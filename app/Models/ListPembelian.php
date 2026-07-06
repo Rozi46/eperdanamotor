@@ -38,5 +38,19 @@ class ListPembelian extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-}
 
+    public function pembelian()
+    {
+        return $this->belongsTo(Pembelian::class, 'nomor', 'nomor');
+    }
+
+    public function satuan()
+    {
+        return $this->belongsTo(Satuan::class, 'kode_satuan', 'id');
+    }
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class, 'kode_barang', 'id');
+    }
+}

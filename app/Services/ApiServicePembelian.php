@@ -2628,42 +2628,94 @@ class ApiServicePembelian
                         ]); 
                     }
 
-                    $getdata['listpembelian'] = ListPembelian::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $request->code_data)->get();
-                    foreach($getdata['listpembelian'] as $key => $listpembelian){
-                        if($listpembelian->harga > 0){
-                            $getdataSatuan = Satuan::Where('id',$listpembelian->kode_satuan)->first();
-                            $hargabeli_item = Round($listpembelian->harga_netto / $getdataSatuan->isi);
+                    // $getdata['listpembelian'] = ListPembelian::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $request->code_data)->get();
+                    // foreach($getdata['listpembelian'] as $key => $listpembelian){
+                    //     if($listpembelian->harga > 0){
+                    //         $getdataSatuan = Satuan::Where('id',$listpembelian->kode_satuan)->first();
+                    //         $hargabeli_item = Round($listpembelian->harga_netto / $getdataSatuan->isi);
 
-                            if($getdata->diskon_persen > 0){
-                                $hargabelidiskon = $hargabeli_item - ($hargabeli_item * ($getdata->diskon_persen / 100));
-                            }else{
-                                $hargabelidiskon = $hargabeli_item;
-                            }
+                    //         if($getdata->diskon_persen > 0){
+                    //             $hargabelidiskon = $hargabeli_item - ($hargabeli_item * ($getdata->diskon_persen / 100));
+                    //         }else{
+                    //             $hargabelidiskon = $hargabeli_item;
+                    //         }
 
-                            if($getdata->diskonCash_persen > 0){
-                                $hargabelidiskoncash = $hargabelidiskon - ($hargabelidiskon * ($getdata->diskonCash_persen / 100));
-                            }else{
-                                $hargabelidiskoncash = $hargabelidiskon;
-                            }
+                    //         if($getdata->diskonCash_persen > 0){
+                    //             $hargabelidiskoncash = $hargabelidiskon - ($hargabelidiskon * ($getdata->diskonCash_persen / 100));
+                    //         }else{
+                    //             $hargabelidiskoncash = $hargabelidiskon;
+                    //         }
 
-                            if($getdata->tanggal < '2022-04-01'){
-                                $get_ppn = 10;
-                            }else{
-                                $get_ppn = 11;
-                            }
+                    //         if($getdata->tanggal < '2022-04-01'){
+                    //             $get_ppn = 10;
+                    //         }else{
+                    //             $get_ppn = 11;
+                    //         }
 
-                            if($getdata->jenis_ppn == 'Exclude'){
-                                $nilai_ppn = Round($hargabelidiskoncash * ($get_ppn / 100));                           
-                                $hargabeliakhir = $hargabelidiskoncash + $nilai_ppn;
-                            }else{
-                                $hargabeliakhir = $hargabelidiskoncash;
-                            }
+                    //         if($getdata->jenis_ppn == 'Exclude'){
+                    //             $nilai_ppn = Round($hargabelidiskoncash * ($get_ppn / 100));                           
+                    //             $hargabeliakhir = $hargabelidiskoncash + $nilai_ppn;
+                    //         }else{
+                    //             $hargabeliakhir = $hargabelidiskoncash;
+                    //         }
                             
-                            Barang::Where('id',$listpembelian->kode_barang)
-                            ->update([                        
-                                'harga_beli' => $hargabeliakhir,
+                    //         Barang::Where('id',$listpembelian->kode_barang)
+                    //         ->update([                        
+                    //             'harga_beli' => $hargabeliakhir,
+                    //         ]);
+                    //     }                 
+                    // }
+
+
+                    $getPPN = $getdata->tanggal < '2022-04-01' ? 10 : 11;
+
+                    $listPembelian = ListPembelian::with('satuan')
+                        ->where('kode_kantor', $viewadmin->kode_kantor)
+                        ->where('nomor', $request->code_data)
+                        ->get();
+
+                    foreach ($listPembelian as $item) {
+
+                        if ($item->harga <= 0) {
+                            continue;
+                        }
+
+                        if (!$item->satuan || $item->satuan->isi <= 0) {
+                            continue;
+                        }
+
+                        $hargaBeli = round(
+                            $item->harga_netto / $item->satuan->isi
+                        );
+
+                        if ($getdata->diskon_persen > 0) {
+                            $hargaBeli -= $hargaBeli * ($getdata->diskon_persen / 100);
+                        }
+
+                        if ($getdata->diskonCash_persen > 0) {
+                            $hargaBeli -= $hargaBeli * ($getdata->diskonCash_persen / 100);
+                        }
+
+                        if ($getdata->jenis_ppn == 'Exclude') {
+                            $hargaBeli += round($hargaBeli * ($getPPN / 100));
+                        }
+
+                        $hargaBeli = round($hargaBeli);
+
+                        $lastPembelian = ListPembelian::where('kode_barang', $item->kode_barang)
+                            ->where('kode_kantor', $viewadmin->kode_kantor)
+                            ->latest('tanggal')
+                            ->latest('created_at')
+                            ->first();
+
+                        if ($lastPembelian && $lastPembelian->id == $item->id) {
+
+                            $item->barang()->update([
+                                'harga_beli' => $hargaBeli
                             ]);
-                        }                 
+
+                        }
+
                     }
 
                     return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object]);
