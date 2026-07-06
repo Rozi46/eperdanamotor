@@ -63,7 +63,7 @@ class ApiController extends Controller
                             'id' => Str::uuid(),
                             'code_data' => $newCodeData,
                             'kode_user' => $getdata->id,
-                            'activity' => 'Masuk ke sistem '.$link_akses,
+                            'activity' => 'Masuk ke sistem',
                             'kode_kantor' => $getdata->kode_kantor,
                         ]);
                     }
@@ -115,7 +115,7 @@ class ApiController extends Controller
                     'id' => Str::uuid(),
                     'code_data' => $newCodeData,
                     'kode_user' => $viewadmin->id,
-                    'activity' => 'Keluar dari sistem '.$link_akses,
+                    'activity' => 'Keluar dari sistem',
                     'kode_kantor' => $viewadmin->kode_kantor,
                 ]);
             }
