@@ -12,7 +12,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiServicePersediaanstock
 {  
-    public function persediaanbarang($request)
+    public function persediaanbarang(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
