@@ -25,11 +25,11 @@ class ApiServiceCashier
                 return strtoupper(Str::random($length));
 
             default:
-                throw new InvalidArgumentException("Type harus 'letters', 'numbers', atau 'mixed'");
+                throw new \InvalidArgumentException("Type harus 'letters', 'numbers', atau 'mixed'");
         }
     }
 
-    public function getlevelaksesCashier($request)
+    public function getlevelaksesCashier(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -45,10 +45,10 @@ class ApiServiceCashier
                     ->orderBy('no_urut', 'ASC')
                     ->get();
 
-                foreach($results['submenu'][$menu->id] as $key => $submenu){
+                foreach($results['submenu'][$menu->id] as $i => $submenu){
                     $results['action'][$submenu->id] = ListAkses::where('menu_index', $submenu->id)->where('action', 'Yes')->orderBy('no_urut', 'ASC')->get();
 
-                    foreach($results['action'][$submenu->id] as $key => $action){
+                    foreach($results['action'][$submenu->id] as $si => $action){
                         $results['subaction'][$action->id] = ListAkses::where('menu_index', $action->id)->where('subaction', 'Yes')->orderBy('no_urut', 'ASC')->get();
                     }
                 }
@@ -58,7 +58,7 @@ class ApiServiceCashier
         }
     }
 
-    public function getadminCashier($request)
+    public function getadminCashier(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -81,7 +81,7 @@ class ApiServiceCashier
 
     }  
 
-    public function getSettingCashier($request)
+    public function getSettingCashier(Request $request)
     {
         $object = array();
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -97,7 +97,7 @@ class ApiServiceCashier
 
     } 
 
-    public function loginCashier($request)
+    public function loginCashier(Request $request)
     {
         $url_api =  env('APP_API');
         $url_app =  env('APP_URL');
@@ -184,7 +184,7 @@ class ApiServiceCashier
         }
     }
 
-    public function logoutCashier($request)
+    public function logoutCashier(Request $request)
     {
         $url_api =  env('APP_API');
         $url_app =  env('APP_URL');
@@ -236,7 +236,7 @@ class ApiServiceCashier
         }                
     }
 
-    public function listopgudangCashier($request)
+    public function listopgudangCashier(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -250,7 +250,7 @@ class ApiServiceCashier
         }
     }
     
-    public function listopmekanikCashier($request)
+    public function listopmekanikCashier(Request $request)
     {
         date_default_timezone_set('Asia/Jakarta');
         $object = [];
@@ -263,7 +263,7 @@ class ApiServiceCashier
         }
     }
 
-    public function editadminCashier($request)
+    public function editadminCashier(Request $request)
     {
         $object = [];
         
@@ -317,7 +317,7 @@ class ApiServiceCashier
         }
     }
 
-    public function editpassadminCashier($request)
+    public function editpassadminCashier(Request $request)
     {
         $object = [];
         $old_password = $request->old_password;
@@ -355,7 +355,7 @@ class ApiServiceCashier
     } 
 
     // Auto Complete
-    public function listopcustomer($request)
+    public function listopcustomer(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -385,7 +385,7 @@ class ApiServiceCashier
         }
     }
     
-    public function listbarangtransaksi($request)
+    public function listbarangtransaksi(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -415,7 +415,7 @@ class ApiServiceCashier
     }
 
     // Penjualan Barang
-    public function getcodepenjualan($request)
+    public function getcodepenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -445,7 +445,7 @@ class ApiServiceCashier
 
     }
 
-    public function saveprodpenjualan($request)
+    public function saveprodpenjualan(Request $request)
     {        
         date_default_timezone_set('Asia/Jakarta');
         $object = [];
@@ -827,7 +827,7 @@ class ApiServiceCashier
 
     }
 
-    public function viewpenjualan($request)
+    public function viewpenjualan(Request $request)
     {
         date_default_timezone_set('Asia/Jakarta');
         $object = [];
@@ -910,7 +910,7 @@ class ApiServiceCashier
         } 
     }
 
-    public function listsatuanhargapenjualan($request)
+    public function listsatuanhargapenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1015,7 +1015,7 @@ class ApiServiceCashier
         }
     }
 
-    public function uphargapenjualan($request)
+    public function uphargapenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1117,7 +1117,7 @@ class ApiServiceCashier
         }
     }
 
-    public function upqtypenjualan($request)
+    public function upqtypenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1218,7 +1218,7 @@ class ApiServiceCashier
         }
     }
 
-    public function updiscpenjualan($request)
+    public function updiscpenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1315,7 +1315,7 @@ class ApiServiceCashier
         }
     }
 
-    public function updiscpenjualan2($request)
+    public function updiscpenjualan2(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1412,7 +1412,7 @@ class ApiServiceCashier
         }
     }
 
-    public function upsummarypenjualan($request)
+    public function upsummarypenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1494,7 +1494,7 @@ class ApiServiceCashier
         }
     }
 
-    public function deleteprodpenjualan($request)
+    public function deleteprodpenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1576,7 +1576,7 @@ class ApiServiceCashier
         }
     }
 
-    public function deletepenjualan($request)
+    public function deletepenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1622,7 +1622,7 @@ class ApiServiceCashier
         }
     }
 
-    public function updatepenjualan($request)
+    public function updatepenjualan(Request $request)
     {
         $object = [];
         $datenow = Carbon::now()->modify("0 days")->format('Y-m-d H:i:s');
@@ -1933,7 +1933,7 @@ class ApiServiceCashier
 
     }
 
-    public function historypenjualan($request)
+    public function historypenjualan(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -1991,13 +1991,13 @@ class ApiServiceCashier
 
                 $results['list_mekanik'][$data->code_data] = ListPenjualanMekanik::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $data->nomor)->orderBy('created_at', 'ASC')->get();
         
-                foreach($results['list_mekanik'][$data->code_data] as $key => $listMekanik){
+                foreach($results['list_mekanik'][$data->code_data] as $i => $listMekanik){
                     $results['detail_mekanik'][$data->code_data][$listMekanik->code_mekanik] = Karyawan::where('code_data', $listMekanik->code_mekanik)->first();                   
                 }
                 
                 $results['list_produk'][$data->nomor] = ListPenjualan::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $data->nomor)->orderBy('created_at', 'ASC')->get(); 
         
-                foreach($results['list_produk'][$data->nomor] as $key => $list){
+                foreach($results['list_produk'][$data->nomor] as $si => $list){
                     $results['detail_produk'][$list->kode_barang] = Barang::where('id', $list->kode_barang)->first();
                     
                     $results['satuan_barang_produk'][$list->kode_barang] = Satuan::where('id', $list->kode_satuan)->first();
@@ -2012,7 +2012,7 @@ class ApiServiceCashier
         }
     }
 
-    public function historypenjualanitem($request)
+    public function historypenjualanitem(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -2083,7 +2083,7 @@ class ApiServiceCashier
         }
     }
 
-    public function persediaanbarang($request)
+    public function persediaanbarang(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -2140,8 +2140,24 @@ class ApiServiceCashier
             $kodeBarangList = $results['list']->pluck('kode_barang')->toArray();
 
             // Lakukan batch query untuk stok akhir, barang, kategori, merk, supplier, gudang
+            // $stokAkhirList = HistoryStock::whereIn('kode_barang', $kodeBarangList)
+            //     ->select('kode_barang', DB::raw('SUM(masuk - keluar) as stock_akhir'))
+            //     ->groupBy('kode_barang')
+            //     ->pluck('stock_akhir', 'kode_barang');
+
             $stokAkhirList = HistoryStock::whereIn('kode_barang', $kodeBarangList)
-                ->select('kode_barang', DB::raw('SUM(masuk - keluar) as stock_akhir'))
+                ->select(
+                    'kode_barang',
+                    DB::raw("
+                        SUM(
+                            masuk +
+                            CASE
+                                WHEN keluar < 0 THEN keluar
+                                ELSE -keluar
+                            END
+                        ) AS stock_akhir
+                    ")
+                )
                 ->groupBy('kode_barang')
                 ->pluck('stock_akhir', 'kode_barang');
 
@@ -2176,10 +2192,23 @@ class ApiServiceCashier
                 }
             
                 // Set stok per gudang
-                foreach($results['list_gudang'] as $gudang){
-                    $results['stok_pergudang'][$kodeBarang][$gudang->code_data] = HistoryStock::where('kode_gudang', $gudang->id)
-                        ->where('kode_barang', $kodeBarang)
-                        ->sum(DB::raw('masuk - keluar'));
+                // foreach($results['list_gudang'] as $gudang){
+                //     $results['stok_pergudang'][$kodeBarang][$gudang->code_data] = HistoryStock::where('kode_gudang', $gudang->id)
+                //         ->where('kode_barang', $kodeBarang)
+                //         ->sum(DB::raw('masuk - keluar'));
+                // }
+
+                foreach ($results['list_gudang'] as $gudang) {
+                    $results['stok_pergudang'][$kodeBarang][$gudang->code_data] =
+                        HistoryStock::where('kode_gudang', $gudang->id)
+                            ->where('kode_barang', $kodeBarang)
+                            ->sum(DB::raw("
+                                masuk +
+                                CASE
+                                    WHEN keluar < 0 THEN keluar
+                                    ELSE -keluar
+                                END
+                            "));
                 }
             
                 // Ambil pembelian tertinggi dengan satu query
@@ -2206,7 +2235,7 @@ class ApiServiceCashier
         }
     }
 
-    public function pendingpenjualan($request)
+    public function pendingpenjualan(Request $request)
     {
         $object = [];
         $datenow = Carbon::now()->modify("0 days")->format('Y-m-d H:i:s');

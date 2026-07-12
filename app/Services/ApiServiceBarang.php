@@ -12,7 +12,48 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiServiceBarang
 {
-    public function getgenerate($request)
+    public function generateCheckDigit(string $code12): int
+    {
+        if (!preg_match('/^\d{12}$/', $code12)) {
+            throw new \InvalidArgumentException('Kode harus terdiri dari 12 digit.');
+        }
+
+        $sum = 0;
+
+        for ($i = 0; $i < 12; $i++) {
+            $digit = (int) $code12[$i];
+
+            // Posisi ganjil dikali 1, posisi genap dikali 3
+            $sum += ($i % 2 === 0) ? $digit : $digit * 3;
+        }
+
+        return (10 - ($sum % 10)) % 10;
+    }
+
+    public function generateBarcodeEAN13(): string
+    {
+        $codenegara = '899';
+
+        $code_produsen = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $code_produk   = str_pad((string) random_int(0, 999), 3, '0', STR_PAD_LEFT);
+
+        $code12 = $codenegara . $code_produsen . $code_produk;
+
+        return $code12 . $this->generateCheckDigit($code12);
+    }
+
+    /** Generate barcode EAN-13 yang unik. */
+    private function generateUniqueBarcodeEAN13(): string
+    {
+        do {
+            $barcode = $this->generateBarcodeEAN13();
+            $exists = Barang::where('kode', $barcode)->exists();
+        } while ($exists);
+
+        return $barcode;
+    }
+
+    public function getgenerate(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -26,20 +67,46 @@ class ApiServiceBarang
             // 123456 = kode produsen
             // 789 = kode produk
             // 0 = digit cek (check digit)
-            $codenegara = '899';
-            $pool = '0123456789';
-            $otp = substr(str_shuffle(str_repeat($pool, 6)), 0, 6); 
-            $poola = '0123456789';
-            $otpa = substr(str_shuffle(str_repeat($poola, 3)), 0, 3); 
-            $poolb = '0123456789';
-            $otpb = substr(str_shuffle(str_repeat($poolb, 1)), 0, 1); 
-            $newCodeData = $codenegara."".$otp."".$otpa."".$otpb;
+
+            // // cara 1
+            // $codenegara = '899';
+            // $pool = '0123456789';
+            // $code_produsen = substr(str_shuffle(str_repeat($pool, 6)), 0, 6); 
+            // $poola = '0123456789';
+            // $code_produk = substr(str_shuffle(str_repeat($poola, 3)), 0, 3); 
+            // $poolb = '0123456789';
+            // $check_digit = substr(str_shuffle(str_repeat($poolb, 1)), 0, 1); 
+            // $newCodeData = $codenegara."".$code_produsen."".$code_produk."".$check_digit;
+
+            // // cara 2
+            // $codenegara = '899';
+            // $pool = '0123456789';
+
+            // $code_produsen = substr(str_shuffle(str_repeat($pool, 6)), 0, 6);
+            // $code_produk   = substr(str_shuffle(str_repeat($pool, 3)), 0, 3);
+            // $check_digit   = substr(str_shuffle($pool), 0, 1);
+
+            // $newCodeData = $codenegara . $code_produsen . $code_produk . $check_digit;
+
+            // // cara 3
+            // $codenegara = '899';
+
+            // $code_produsen = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            // $code_produk   = str_pad((string) random_int(0, 999), 3, '0', STR_PAD_LEFT);
+            // $check_digit   = (string) random_int(0, 9);
+
+            // $newCodeData = $codenegara . $code_produsen . $code_produk . $check_digit;
+
+            // cara 4
+            // $barcode = $this->generateBarcodeEAN13();
+            $barcode = $this->generateUniqueBarcodeEAN13();
+            $newCodeData = $barcode;
                 
             return response()->json(['status_message' => 'success','results' => $newCodeData]);
         }
     } 
 
-    public function listbarang($request)
+    public function listbarang(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -102,7 +169,7 @@ class ApiServiceBarang
         }
     }
                 
-    public function newbarang($request)
+    public function newbarang(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -201,7 +268,7 @@ class ApiServiceBarang
 
     }
 
-    public function viewbarang($request)
+    public function viewbarang(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -226,7 +293,7 @@ class ApiServiceBarang
 
     }
 
-    public function editbarang($request)
+    public function editbarang(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -320,7 +387,7 @@ class ApiServiceBarang
 
     }
 
-    public function deletebarang($request)
+    public function deletebarang(Request $request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();

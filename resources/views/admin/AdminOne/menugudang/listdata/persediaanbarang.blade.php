@@ -73,7 +73,7 @@
 															<div class="alert alert-primary" style="display: inline-block; margin: 1px auto 0; text-align: Lev; font-size: 14px; padding: 2px;" title="{{$view_data['nama_barang']}}">
 																<strong>{{ $view_data['nama_barang'] ?? 'Belum Ditentukan' }}</strong>
 															</div>
-                                                            <a href="{{ url('editbarang') . '?d=' . $view_data['id'] }}" title="Lihat detail data">
+                                                            <a href="{{ url('/admin/editbarang') . '?d=' . $view_data['id'] }}" title="Lihat detail data">
                                                                 <br>{{ $view_data['kode'] ?? ''}}<br>
                                                             </a>    
                                                             <small>
