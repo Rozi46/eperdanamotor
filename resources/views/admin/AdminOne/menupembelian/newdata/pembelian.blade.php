@@ -279,7 +279,7 @@
 
                         $('input[name="tgl_transaksi"]').datepicker({
                             format: 'yyyy-mm-dd',
-                            startDate: '-2y',
+                            startDate: '-5y',
                             endDate: '0d',
                             autoclose : true,
                             language: "id",
