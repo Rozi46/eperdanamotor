@@ -58,6 +58,13 @@
                                                     <td style="text-align: right; <?php echo $css_out; ?> cursor: default; font-size:16px; font-weight: 600;" colspan="4">Saldo Akhir <?php echo Date::parse($datefilterend)->format('d M Y'); ?> :</td>
                                                     <td style="text-align: right; <?php echo $css_out; ?> cursor: default; font-size:16px; font-weight: 600;" colspan="6"><?php echo number_format($listdata['saldo_akhir']['total'],2,",",".") ?></td>
                                                 </tr>
+                                                <tr>
+                                                    <td style="text-align: right; <?php echo $css_out; ?> cursor: default; font-size:16px; font-weight: 600;" colspan="4">Total :</td>
+                                                    <td style="text-align: right; <?php echo $css_out; ?> cursor: default; font-size:16px; font-weight: 600;"></td>
+                                                    <td style="text-align: right; <?php echo $css_out; ?> cursor: default; font-size:16px; font-weight: 600;">{{ number_format($listdata['total_masuk']['totalMasuk'],2,",",".") }}</td>
+                                                    <td style="text-align: right; <?php echo $css_out; ?> cursor: default; font-size:16px; font-weight: 600;">{{ number_format($listdata['total_keluar']['totalKeluar'],2,",",".") }}</td>
+                                                    <td style="text-align: right; <?php echo $css_out; ?> cursor: default; font-size:16px; font-weight: 600;"></td>
+                                                </tr>
                                                 <!-- <?php $saldoawal = 0; $saldoakhir = 0; ?> -->
 												<?php $no = 0;?> @forelse($results['data'] as $view_data) <?php Date::setLocale('id'); $no++ ;?>
 													<?php

@@ -58,6 +58,20 @@ class ApiServiceHistorykas
                 ->where('kode_kantor', $viewadmin->kode_kantor)
                 ->first();
     
+            // Menghitung total masuk
+            $results['total_masuk'] = DB::table('db_aruskas')
+                ->selectRaw('SUM(debet) as totalMasuk')                
+                ->whereBetween('tanggal', [$datefilterstart, $datefilterend])
+                ->where('kode_kantor', $viewadmin->kode_kantor)
+                ->first();
+    
+            // Menghitung total keluar
+            $results['total_keluar'] = DB::table('db_aruskas')
+                ->selectRaw('SUM(kredit) as totalKeluar')                
+                ->whereBetween('tanggal', [$datefilterstart, $datefilterend])
+                ->where('kode_kantor', $viewadmin->kode_kantor)
+                ->first();
+    
             // Menentukan urutan sort untuk hasil query
             $sort = $request->type == 'export' ? 'ASC' : 'DESC';
     
