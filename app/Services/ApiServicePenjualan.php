@@ -10,6 +10,8 @@ use Illuminate\Database\Query\Builder;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+
 class ApiServicePenjualan
 {
     // Auto Complete
@@ -1525,41 +1527,41 @@ class ApiServicePenjualan
                 return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
             }
 
-            $vd = $request->filled('vd') ? $request->vd : 20;
+            // $vd = $request->filled('vd') ? $request->vd : 20;
             
-            $dateyear = Carbon::now()->modify("-1 year")->format('Y-m-d') . ' 00:00:00';
+            // $dateyear = Carbon::now()->modify("-1 year")->format('Y-m-d') . ' 00:00:00';
 
-            $datefilterstart = Carbon::now()->modify("-30 days")->format('Y-m-d') . ' 00:00:00';
-            $datefilterend = Carbon::now()->modify("+1 days")->format('Y-m-d') . ' 23:59:59';
+            // $datefilterstart = Carbon::now()->modify("-30 days")->format('Y-m-d') . ' 00:00:00';
+            // $datefilterend = Carbon::now()->modify("+1 days")->format('Y-m-d') . ' 23:59:59';
 
-            if($request->searchdate != ''){
-                $searchdate = explode ("sd",$request->searchdate);
-                $datefilterstart = Carbon::parse($searchdate[0])->format('Y-m-d') . ' 00:00:00';
-                $datefilterend = Carbon::parse($searchdate[1])->format('Y-m-d') . ' 23:59:59';
-            }
+            // if($request->searchdate != ''){
+            //     $searchdate = explode ("sd",$request->searchdate);
+            //     $datefilterstart = Carbon::parse($searchdate[0])->format('Y-m-d') . ' 00:00:00';
+            //     $datefilterend = Carbon::parse($searchdate[1])->format('Y-m-d') . ' 23:59:59';
+            // }
             
-            $results['list'] = DB::table('db_penjualan')
-                ->join('db_customer', 'db_penjualan.kode_customer','=','db_customer.id')
-                ->join('db_users_web', 'db_penjualan.kode_user','=','db_users_web.id')
-                ->select(
-                    'db_penjualan.*',
-                    'db_customer.nama as nama_customer',
-                    'db_users_web.full_name as nama_user_input'
-                )
-                ->whereBetween('db_penjualan.tanggal', [$datefilterstart, $datefilterend])
-                ->where('db_penjualan.kode_kantor', $viewadmin->kode_kantor)
-                ->where(function($query) use ($request) {
-                    $query->where('db_penjualan.code_data','LIKE','%'.$request->keysearch.'%')
-                        ->orWhere('db_penjualan.nomor','LIKE','%'.$request->keysearch.'%')
-                        ->orWhere('db_penjualan.status_transaksi','LIKE', '%'.$request->keysearch.'%')
-                        ->orWhere('db_penjualan.ket','LIKE', '%'.$request->keysearch.'%')
-                        ->orWhere('db_penjualan.tanggal','LIKE', '%'.$request->keysearch.'%')
-                        ->orWhere('db_customer.nama','LIKE','%'.$request->keysearch.'%')
-                        ->orWhere('db_users_web.full_name','LIKE','%'.$request->keysearch.'%');
-                })
-                ->orderBy('db_penjualan.nomor', 'DESC')
-                ->orderBy('db_penjualan.tanggal', 'DESC')
-                ->paginate($vd ? $vd : 20);
+            // $results['list'] = DB::table('db_penjualan')
+            //     ->join('db_customer', 'db_penjualan.kode_customer','=','db_customer.id')
+            //     ->join('db_users_web', 'db_penjualan.kode_user','=','db_users_web.id')
+            //     ->select(
+            //         'db_penjualan.*',
+            //         'db_customer.nama as nama_customer',
+            //         'db_users_web.full_name as nama_user_input'
+            //     )
+            //     ->whereBetween('db_penjualan.tanggal', [$datefilterstart, $datefilterend])
+            //     ->where('db_penjualan.kode_kantor', $viewadmin->kode_kantor)
+            //     ->where(function($query) use ($request) {
+            //         $query->where('db_penjualan.code_data','LIKE','%'.$request->keysearch.'%')
+            //             ->orWhere('db_penjualan.nomor','LIKE','%'.$request->keysearch.'%')
+            //             ->orWhere('db_penjualan.status_transaksi','LIKE', '%'.$request->keysearch.'%')
+            //             ->orWhere('db_penjualan.ket','LIKE', '%'.$request->keysearch.'%')
+            //             ->orWhere('db_penjualan.tanggal','LIKE', '%'.$request->keysearch.'%')
+            //             ->orWhere('db_customer.nama','LIKE','%'.$request->keysearch.'%')
+            //             ->orWhere('db_users_web.full_name','LIKE','%'.$request->keysearch.'%');
+            //     })
+            //     ->orderBy('db_penjualan.nomor', 'DESC')
+            //     ->orderBy('db_penjualan.tanggal', 'DESC')
+            //     ->paginate($vd ? $vd : 20);
 
             // $results['list'] = DB::table('db_customer')
             //     ->join('db_penjualan', 'db_customer.id', '=', 'db_penjualan.kode_customer')
@@ -1577,47 +1579,312 @@ class ApiServicePenjualan
             //     ->orderBy('db_penjualan.nomor', 'DESC')
             //     ->paginate($vd ? $vd : 20);
 
-            foreach($results['list'] as $key => $data){
+            // foreach($results['list'] as $key => $data){
                 
-                $results['detail_penjualan'][$data->code_data] = Penjualan::where('nomor', $data->nomor)->where('kode_kantor', $data->kode_kantor)->first();
+            //     $results['detail_penjualan'][$data->code_data] = Penjualan::where('nomor', $data->nomor)->where('kode_kantor', $data->kode_kantor)->first();
                 
-                $results['user_input'][$data->code_data] = User::select('code_data','full_name')->where('id', $results['detail_penjualan'][$data->code_data]->kode_user)->where('kode_kantor', $data->kode_kantor)->first();
-                if(!$results['user_input'][$data->code_data]){
-                    $results['user_input'][$data->code_data]['full_name'] = 'Belum Ditentukan';
-                }
+            //     $results['user_input'][$data->code_data] = User::select('code_data','full_name')->where('id', $results['detail_penjualan'][$data->code_data]->kode_user)->where('kode_kantor', $data->kode_kantor)->first();
+            //     if(!$results['user_input'][$data->code_data]){
+            //         $results['user_input'][$data->code_data]['full_name'] = 'Belum Ditentukan';
+            //     }
 
-                $results['qty_penjualan'][$data->code_data] = ListPenjualan::where('nomor', $results['detail_penjualan'][$data->code_data]->nomor)->sum('jumlah_jual');
+            //     $results['qty_penjualan'][$data->code_data] = ListPenjualan::where('nomor', $results['detail_penjualan'][$data->code_data]->nomor)->sum('jumlah_jual');
 
-                $results['qty_kirim'][$data->code_data] = ListPenjualan::where('nomor', $results['detail_penjualan'][$data->code_data]->nomor)->sum('jumlah_kirim');
+            //     $results['qty_kirim'][$data->code_data] = ListPenjualan::where('nomor', $results['detail_penjualan'][$data->code_data]->nomor)->sum('jumlah_kirim');
 
-                $results['detail_perusahaan'][$data->code_data] = Kantor::select('kantor')->where('kode', $results['detail_penjualan'][$data->code_data]->kode_kantor)->first();
+            //     $results['detail_perusahaan'][$data->code_data] = Kantor::select('kantor')->where('kode', $results['detail_penjualan'][$data->code_data]->kode_kantor)->first();
 
-                $results['detail_customer'][$data->code_data] = Customer::where('id', $results['detail_penjualan'][$data->code_data]->kode_customer)->first();
+            //     $results['detail_customer'][$data->code_data] = Customer::where('id', $results['detail_penjualan'][$data->code_data]->kode_customer)->first();
 
-                $results['detail_gudang'][$data->code_data] = Gudang::select('nama')->where('id', $results['detail_penjualan'][$data->code_data]->kode_gudang)->first();
+            //     $results['detail_gudang'][$data->code_data] = Gudang::select('nama')->where('id', $results['detail_penjualan'][$data->code_data]->kode_gudang)->first();
 
-                $results['list_mekanik'][$data->code_data] = ListPenjualanMekanik::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $data->nomor)->orderBy('created_at', 'ASC')->get();
+            //     $results['list_mekanik'][$data->code_data] = ListPenjualanMekanik::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $data->nomor)->orderBy('created_at', 'ASC')->get();
         
-                foreach($results['list_mekanik'][$data->code_data] as $key => $listMekanik){
-                    $results['detail_mekanik'][$data->code_data][$listMekanik->code_mekanik] = Karyawan::where('code_data', $listMekanik->code_mekanik)->first();                   
-                }
+            //     foreach($results['list_mekanik'][$data->code_data] as $key => $listMekanik){
+            //         $results['detail_mekanik'][$data->code_data][$listMekanik->code_mekanik] = Karyawan::where('code_data', $listMekanik->code_mekanik)->first();                   
+            //     }
                 
-                $results['list_produk'][$data->nomor] = ListPenjualan::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor',  $data->nomor)->orderBy('created_at', 'ASC')->get(); 
+            //     $results['list_produk'][$data->nomor] = ListPenjualan::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor',  $data->nomor)->orderBy('created_at', 'ASC')->get(); 
         
-                foreach($results['list_produk'][$data->nomor] as $key => $list){
-                    $results['detail_produk'][$list->kode_barang] = Barang::where('id', $list->kode_barang)->first();
-                    $results['satuan_barang_produk'][$list->kode_barang] = Satuan::where('id', $list->kode_satuan)->first();
+            //     foreach($results['list_produk'][$data->nomor] as $key => $list){
+            //         $results['detail_produk'][$list->kode_barang] = Barang::where('id', $list->kode_barang)->first();
+            //         $results['satuan_barang_produk'][$list->kode_barang] = Satuan::where('id', $list->kode_satuan)->first();
 
-                    if($results['detail_produk'][$list->kode_barang]){
-                        $results['satuan_produk'][$list->kode_barang] = Satuan::where('id', $results['detail_produk'][$list->kode_barang]->kode_satuan)->first();
-                        if($results['satuan_produk'][$list->kode_barang]){
-                            $results['satuan_barang_pecahan'][$list->kode_barang] = Satuan::where('kode_pecahan', $results['satuan_produk'][$list->kode_barang]->id)->orderBy('nama', 'ASC')->get(); 
-                        }
-                    }                                                            
+            //         if($results['detail_produk'][$list->kode_barang]){
+            //             $results['satuan_produk'][$list->kode_barang] = Satuan::where('id', $results['detail_produk'][$list->kode_barang]->kode_satuan)->first();
+            //             if($results['satuan_produk'][$list->kode_barang]){
+            //                 $results['satuan_barang_pecahan'][$list->kode_barang] = Satuan::where('kode_pecahan', $results['satuan_produk'][$list->kode_barang]->id)->orderBy('nama', 'ASC')->get(); 
+            //             }
+            //         }                                                            
+            //     }
+            // }
+
+            // return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['list']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
+
+
+            $vd = max(1, min((int) ($request->vd ?: 20), 500));
+            $isExport = $request->input('type') === 'export';
+
+            $datefilterstart = Carbon::now()
+                ->subDays(30)
+                ->startOfDay();
+
+            $datefilterend = Carbon::now()
+                ->addDay()
+                ->endOfDay();
+
+            if ($request->filled('searchdate')) {
+                $searchdate = explode('sd', $request->searchdate);
+
+                if (count($searchdate) === 2) {
+                    $datefilterstart = Carbon::parse($searchdate[0])->startOfDay();
+                    $datefilterend = Carbon::parse($searchdate[1])->endOfDay();
                 }
             }
 
-            return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['list']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
+            $query = DB::table('db_penjualan')
+                ->join(
+                    'db_customer',
+                    'db_penjualan.kode_customer',
+                    '=',
+                    'db_customer.id'
+                )
+                ->join(
+                    'db_users_web',
+                    'db_penjualan.kode_user',
+                    '=',
+                    'db_users_web.id'
+                )
+                ->select(
+                    'db_penjualan.*',
+                    'db_customer.nama as nama_customer',
+                    'db_users_web.full_name as nama_user_input'
+                )
+                ->whereBetween('db_penjualan.tanggal', [
+                    $datefilterstart,
+                    $datefilterend
+                ])
+                ->where('db_penjualan.kode_kantor', $viewadmin->kode_kantor)
+                ->when($request->filled('keysearch'), function ($q) use ($request) {
+                    $keyword = $request->keysearch;
+
+                    $q->where(function ($sub) use ($keyword) {
+                        $sub->where('db_penjualan.code_data', 'LIKE', "%{$keyword}%")
+                            ->orWhere('db_penjualan.nomor', 'LIKE', "%{$keyword}%")
+                            ->orWhere('db_penjualan.status_transaksi', 'LIKE', "%{$keyword}%")
+                            ->orWhere('db_penjualan.ket', 'LIKE', "%{$keyword}%")
+                            ->orWhere('db_penjualan.tanggal', 'LIKE', "%{$keyword}%")
+                            ->orWhere('db_customer.nama', 'LIKE', "%{$keyword}%")
+                            ->orWhere('db_users_web.full_name', 'LIKE', "%{$keyword}%");
+                    });
+                })
+                ->orderByDesc('db_penjualan.nomor')
+                ->orderByDesc('db_penjualan.tanggal');
+
+            $totalData = (clone $query)->count('db_penjualan.id');
+
+            // Halaman biasa tetap menggunakan pagination.
+            // Export mengambil hasil query tanpa pagination ekstrem.
+            $rows = $isExport
+                ? $query->get()
+                : $query->paginate($vd);
+
+            $transactions = $isExport
+                ? $rows
+                : $rows->getCollection();
+
+            $nomors = $transactions->pluck('nomor')
+                ->filter()
+                ->unique()
+                ->values();
+
+            $codeData = $transactions->pluck('code_data')
+                ->filter()
+                ->unique()
+                ->values();
+
+            $results = [
+                'user_input' => [],
+                'qty_penjualan' => [],
+                'qty_kirim' => [],
+                'detail_penjualan' => [],
+                'detail_perusahaan' => [],
+                'detail_customer' => [],
+                'detail_gudang' => [],
+                'list_mekanik' => [],
+                'detail_mekanik' => [],
+                'list_produk' => [],
+                'detail_produk' => [],
+                'satuan_barang_produk' => [],
+                'satuan_produk' => [],
+                'satuan_barang_pecahan' => [],
+            ];
+
+            // Ambil detail transaksi sekaligus.
+            $details = Penjualan::where('kode_kantor', $viewadmin->kode_kantor)
+                ->whereIn('nomor', $nomors)
+                ->get()
+                ->keyBy('nomor');
+
+            $userIds = $details->pluck('kode_user')->filter()->unique();
+            $customerIds = $details->pluck('kode_customer')->filter()->unique();
+            $gudangIds = $details->pluck('kode_gudang')->filter()->unique();
+
+            $users = User::select('id', 'code_data', 'full_name')
+                ->whereIn('id', $userIds)
+                ->get()
+                ->keyBy('id');
+
+            $customers = Customer::whereIn('id', $customerIds)
+                ->get()
+                ->keyBy('id');
+
+            $gudangs = Gudang::select('id', 'nama')
+                ->whereIn('id', $gudangIds)
+                ->get()
+                ->keyBy('id');
+
+            $kantor = Kantor::select('kode', 'kantor')
+                ->where('kode', $viewadmin->kode_kantor)
+                ->first();
+
+            // Ambil seluruh detail produk untuk semua transaksi sekaligus.
+            $produkRows = ListPenjualan::where('kode_kantor', $viewadmin->kode_kantor)
+                ->whereIn('nomor', $nomors)
+                ->orderBy('created_at')
+                ->get();
+
+            $produkIds = $produkRows->pluck('kode_barang')->filter()->unique();
+            $satuanIds = $produkRows->pluck('kode_satuan')->filter()->unique();
+
+            $barangs = Barang::whereIn('id', $produkIds)
+                ->get()
+                ->keyBy('id');
+
+            $satuans = Satuan::whereIn('id', $satuanIds)
+                ->get()
+                ->keyBy('id');
+
+            // Satuan dasar dan satuan pecahan juga diambil secara berkelompok.
+            $satuanDasarIds = $barangs->pluck('kode_satuan')
+                ->filter()
+                ->unique();
+
+            $satuanDasar = Satuan::whereIn('id', $satuanDasarIds)
+                ->get()
+                ->keyBy('id');
+
+            $pecahan = Satuan::whereIn('kode_pecahan', $satuanDasarIds)
+                ->orderBy('nama')
+                ->get()
+                ->groupBy('kode_pecahan');
+
+            // Agregasi kuantitas dilakukan sekali, bukan dua query per transaksi.
+            $qty = DB::table('db_penjualand')
+                ->select(
+                    'nomor',
+                    DB::raw('SUM(jumlah_jual) as total_jual'),
+                    DB::raw('SUM(jumlah_kirim) as total_kirim')
+                )
+                ->where('kode_kantor', $viewadmin->kode_kantor)
+                ->whereIn('nomor', $nomors)
+                ->groupBy('nomor')
+                ->get()
+                ->keyBy('nomor');
+
+            // Ambil mekanik dan karyawan secara berkelompok.
+            $mekanikRows = ListPenjualanMekanik::where(
+                    'kode_kantor',
+                    $viewadmin->kode_kantor
+                )
+                ->whereIn('nomor', $nomors)
+                ->orderBy('created_at')
+                ->get()
+                ->groupBy('nomor');
+
+            $mekanikCodes = $mekanikRows->flatten()
+                ->pluck('code_mekanik')
+                ->filter()
+                ->unique();
+
+            $karyawan = Karyawan::whereIn('code_data', $mekanikCodes)
+                ->get()
+                ->keyBy('code_data');
+
+            // Susun kembali struktur yang digunakan Blade.
+            foreach ($transactions as $data) {
+                $code = $data->code_data;
+                $nomor = $data->nomor;
+                $detail = $details->get($nomor);
+                $jumlah = $qty->get($nomor);
+
+                $results['detail_penjualan'][$code] = $detail;
+                $results['user_input'][$code] = $detail
+                    ? ($users->get($detail->kode_user) ?? ['full_name' => 'Belum Ditentukan'])
+                    : ['full_name' => 'Belum Ditentukan'];
+
+                $results['qty_penjualan'][$code] = $jumlah->total_jual ?? 0;
+                $results['qty_kirim'][$code] = $jumlah->total_kirim ?? 0;
+                $results['detail_perusahaan'][$code] = $kantor;
+
+                $results['detail_customer'][$code] = $detail
+                    ? $customers->get($detail->kode_customer)
+                    : null;
+
+                $results['detail_gudang'][$code] = $detail
+                    ? $gudangs->get($detail->kode_gudang)
+                    : null;
+
+                $results['list_mekanik'][$code] = $mekanikRows->get($nomor, collect());
+
+                foreach ($results['list_mekanik'][$code] as $mekanik) {
+                    $results['detail_mekanik'][$code][$mekanik->code_mekanik]
+                        = $karyawan->get($mekanik->code_mekanik);
+                }
+
+                $results['list_produk'][$nomor] = $produkRows->where('nomor', $nomor)
+                    ->values();
+
+                foreach ($results['list_produk'][$nomor] as $produk) {
+                    $results['detail_produk'][$produk->kode_barang]
+                        = $barangs->get($produk->kode_barang);
+
+                    $results['satuan_barang_produk'][$produk->kode_barang]
+                        = $satuans->get($produk->kode_satuan);
+
+                    $barang = $barangs->get($produk->kode_barang);
+
+                    if ($barang) {
+                        $dasar = $satuanDasar->get($barang->kode_satuan);
+
+                        $results['satuan_produk'][$produk->kode_barang] = $dasar;
+
+                        if ($dasar) {
+                            $results['satuan_barang_pecahan'][$produk->kode_barang]
+                                = $pecahan->get($dasar->id, collect());
+                        }
+                    }
+                }
+            }
+
+            if ($isExport) {
+                // Bentuk data agar tetap kompatibel dengan Blade yang menggunakan
+                // $results['data'] setelah respons JSON diubah menjadi array.
+                $results['list'] = ['data' => $transactions->values()];
+            } else {
+                $results['list'] = $rows;
+            }
+
+            return response()->json([
+                'status_message' => 'success',
+                'note' => 'Proses data berhasil',
+                'count_all_data' => $totalData,
+                'count_view_data' => $isExport ? $totalData : $vd,
+                'keysearch' => $request->keysearch,
+                'results' => $results,
+            ]);
+
+
         }
     }
 

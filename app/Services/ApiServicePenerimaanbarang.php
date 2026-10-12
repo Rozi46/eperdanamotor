@@ -287,7 +287,7 @@ class ApiServicePenerimaanbarang
         } 
     }
 
-    public function savepenerimaan($request)
+    public function savepenerimaan_2($request)
     {
         $object = [];
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
@@ -344,16 +344,12 @@ class ApiServicePenerimaanbarang
                 ]);
 
                 if($savedata){
-                    foreach($list_prod_po as $key => $list){
-                        $uuidrdo = Str::uuid();
-                        $uuid_stock = Str::uuid();
-                                
+                    foreach($list_prod_po as $key => $list){                                
                         $qty_pembelian = $list->jumlah_beli - $list->jumlah_terima;
 
                         if($list->jumlah_beli != $list->jumlah_terima){
-                            ListPenerimaan::create([                                    
-                                // 'id' => $list->id,
-                                'id' => $uuidrdo,
+                            ListPenerimaan::create([ 
+                                'id' => Str::uuid(),
                                 'code_data' => $newCodeData,
                                 'nomor_penerimaan' => $nomor_penerimaan,
                                 'nomor_pembelian' => $nomor_pembelian,
@@ -375,7 +371,7 @@ class ApiServicePenerimaanbarang
                         $jumlah_terima = $get_listpembelian->jumlah_terima;
                         $jumlah_terima = $jumlah_terima + $qty_terima_in;
 
-                        ListPembelian::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor',$nomor_pembelian)->where('kode_barang', $kode_barang)->update(['jumlah_terima' => $jumlah_terima]);
+                        ListPembelian::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor',$nomor_pembelian)->where('kode_barang', $kode_barang)->where('jumlah_beli', $qty_beli)->update(['jumlah_terima' => $jumlah_terima]);
 
                         $getdata_satuan = Satuan::Where('id',$kode_satuan)->first();
                         $total_isi = $qty_terima_in * $getdata_satuan->isi;
@@ -383,7 +379,7 @@ class ApiServicePenerimaanbarang
                         $count_historystock = HistoryStock::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor', $nomor_penerimaan)->where('kode_barang', $kode_barang)->count();
                         if($count_historystock == 0){
                             HistoryStock::create([  
-                                'id' => $uuid_stock,
+                                'id' => Str::uuid(),
                                 'code_data' => $newCodeData,
                                 'nomor' => $nomor_penerimaan,
                                 'kode_barang' => $kode_barang,
@@ -422,7 +418,7 @@ class ApiServicePenerimaanbarang
                     $jumlah_terima = $get_listpembelian->jumlah_terima;
                     $jumlah_terima = $jumlah_terima + $qty_terima_in;
 
-                    ListPembelian::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor',$nomor_pembelian)->where('kode_barang', $kode_barang)->update(['jumlah_terima' => $jumlah_terima]);
+                    ListPembelian::Where('kode_kantor',$viewadmin->kode_kantor)->where('nomor',$nomor_pembelian)->where('kode_barang', $kode_barang)->where('jumlah_beli', $qty_beli)->update(['jumlah_terima' => $jumlah_terima]);
 
                     $getdata_barang = Barang::Where('id',$kode_barang)->first();
                     $getdata_satuan = Satuan::Where('id',$getdata_barang->kode_satuan)->first();
@@ -453,6 +449,604 @@ class ApiServicePenerimaanbarang
             }
         }
     }
+
+
+
+    public function savepenerimaan($request)
+    {
+        $object = [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Validasi User
+        |--------------------------------------------------------------------------
+        */
+        $viewadmin = User::where('id', $request->u)
+            ->where('key_token', $request->token)
+            ->first();
+
+        if (!$viewadmin) {
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Data tidak ditemukan',
+                'results' => $object
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Validasi Hak Akses
+        |--------------------------------------------------------------------------
+        */
+        $level_menu = LevelAdmin::where('code_data', $viewadmin->level)
+            ->where('data_menu', 'menupenerimaanbarang')
+            ->first();
+
+        $level_action = LevelAdmin::where('code_data', $viewadmin->level)
+            ->where('data_menu', 'inputpenerimaanbarang')
+            ->first();
+
+        if (
+            !$level_menu ||
+            !$level_action ||
+            $level_menu->access_rights == 'No' ||
+            $level_action->access_rights == 'No'
+        ) {
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Tidak ada akses',
+                'results' => $object
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Ambil Parameter
+        |--------------------------------------------------------------------------
+        */
+        $id = $request->get('id');
+
+        $nomor_penerimaan = $request->get('code_transaksi');
+
+        $tgl_transaksi = Carbon::parse($request->get('tgl_transaksi'))->format('Y-m-d');
+
+        $keterangan = $request->get('keterangan');
+
+        $kode_barang = $request->get('code_produk');
+
+        /*
+        * jumlah_beli adalah jumlah pada baris ListPembelian
+        *
+        * Contoh:
+        * ACCELERA qty 5  harga 0
+        * ACCELERA qty 10 harga 1.054.500
+        *
+        * Maka qty_beli harus dikirim sesuai baris yang dipilih.
+        */
+        $qty_beli = (float) $request->get('qty_pembelian', 0);
+
+        /*
+        * jumlah yang diterima pada transaksi ini
+        */
+        $qty_terima_in = (float) $request->get('qty', 0);
+
+        /*
+        * Satuan tidak lagi dijadikan penentu utama.
+        * Kita ambil dari detail pembelian yang ditemukan.
+        */
+        $kode_satuan_request = $request->get('kode_satuan');
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Validasi Input Dasar
+        |--------------------------------------------------------------------------
+        */
+        if (!$nomor_penerimaan) {
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Nomor penerimaan belum diisi',
+                'results' => $object
+            ]);
+        }
+
+        if (!$request->get('code_pembelian')) {
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Nomor pembelian belum dipilih',
+                'results' => $object
+            ]);
+        }
+
+        if (!$kode_barang) {
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Barang belum dipilih',
+                'results' => $object
+            ]);
+        }
+
+        if ($qty_beli <= 0) {
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Jumlah pembelian tidak valid',
+                'results' => $object
+            ]);
+        }
+
+        if ($qty_terima_in <= 0) {
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Jumlah penerimaan harus lebih dari 0',
+                'results' => $object
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Proses Database
+        |--------------------------------------------------------------------------
+        */
+        try {
+
+            return DB::transaction(function () use (
+                $request,
+                $object,
+                $viewadmin,
+                $nomor_penerimaan,
+                $tgl_transaksi,
+                $keterangan,
+                $kode_barang,
+                $qty_beli,
+                $qty_terima_in
+            ) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | 6. Ambil Pembelian
+                |--------------------------------------------------------------------------
+                */
+                $getdata_pembelian = Pembelian::where(
+                        'kode_kantor',
+                        $viewadmin->kode_kantor
+                    )
+                    ->where('code_data', $request->code_pembelian)
+                    ->first();
+
+                if (!$getdata_pembelian) {
+                    return response()->json([
+                        'status_message' => 'error',
+                        'note' => 'Data pembelian tidak ditemukan',
+                        'results' => $object
+                    ]);
+                }
+
+                $nomor_pembelian = $getdata_pembelian->nomor;
+                $kode_gudang = $getdata_pembelian->kode_gudang;
+                $newCodeData = $getdata_pembelian->code_data;
+
+                /*
+                |--------------------------------------------------------------------------
+                | 7. Ambil Detail Pembelian
+                |
+                | PENTING:
+                | Pencarian berdasarkan:
+                |
+                |   kode_barang
+                |   +
+                |   jumlah_beli
+                |
+                | Karena satu kode barang bisa muncul lebih dari satu kali.
+                |--------------------------------------------------------------------------
+                */
+                $get_list_po = ListPembelian::where(
+                        'kode_kantor',
+                        $viewadmin->kode_kantor
+                    )
+                    ->where('nomor', $nomor_pembelian)
+                    ->where('kode_barang', $kode_barang)
+                    ->where('jumlah_beli', $qty_beli)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$get_list_po) {
+                    return response()->json([
+                        'status_message' => 'error',
+                        'note' => 'Detail barang pembelian tidak ditemukan. Pastikan kode barang dan jumlah beli sesuai.',
+                        'results' => $object
+                    ]);
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | 8. Hitung Sisa Pembelian
+                |--------------------------------------------------------------------------
+                */
+                $jumlah_beli_po = (float) $get_list_po->jumlah_beli;
+                $jumlah_terima_lama = (float) ($get_list_po->jumlah_terima ?? 0);
+
+                $sisa_pembelian = $jumlah_beli_po - $jumlah_terima_lama;
+
+                /*
+                |--------------------------------------------------------------------------
+                | 9. Validasi agar tidak menerima melebihi PO
+                |--------------------------------------------------------------------------
+                */
+                if ($qty_terima_in > $sisa_pembelian) {
+
+                    return response()->json([
+                        'status_message' => 'error',
+                        'note' => 'Jumlah penerimaan melebihi sisa pembelian. Sisa yang dapat diterima: ' . $sisa_pembelian,
+                        'results' => $object
+                    ]);
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | 10. Supplier
+                |--------------------------------------------------------------------------
+                */
+                $getdata_supplier = Supplier::where(
+                    'id',
+                    $getdata_pembelian->kode_supplier
+                )->first();
+
+                if (!$keterangan) {
+
+                    $nama_supplier = $getdata_supplier
+                        ? $getdata_supplier->nama
+                        : '-';
+
+                    $keterangan = 'Penerimaan barang [' .
+                        $nomor_pembelian .
+                        ' - ' .
+                        $nama_supplier .
+                        ']';
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | 11. Ambil / Buat Header Penerimaan
+                |--------------------------------------------------------------------------
+                */
+                $savedata = Penerimaan::where(
+                        'kode_kantor',
+                        $viewadmin->kode_kantor
+                    )
+                    ->where(
+                        'nomor_penerimaan',
+                        $nomor_penerimaan
+                    )
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$savedata) {
+
+                    $savedata = Penerimaan::create([
+                        'id' => Str::uuid(),
+                        'code_data' => $newCodeData,
+                        'nomor_penerimaan' => $nomor_penerimaan,
+                        'nomor_pembelian' => $nomor_pembelian,
+                        'tanggal' => $tgl_transaksi,
+                        'ket' => $keterangan,
+                        'kode_gudang' => $getdata_pembelian->kode_gudang,
+                        'kode_kantor' => $getdata_pembelian->kode_kantor,
+                        'kode_user' => $viewadmin->id,
+                    ]);
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | 12. Buat Detail ListPenerimaan
+                    |
+                    | Kita tetap membuat seluruh item PO yang belum selesai,
+                    | mengikuti pola sistem lama.
+                    |--------------------------------------------------------------------------
+                    */
+                    $list_prod_po = ListPembelian::where(
+                            'kode_kantor',
+                            $viewadmin->kode_kantor
+                        )
+                        ->where('nomor', $nomor_pembelian)
+                        ->orderBy('created_at', 'ASC')
+                        ->get();
+
+                    foreach ($list_prod_po as $list) {
+
+                        $sisa = (float) $list->jumlah_beli -
+                            (float) ($list->jumlah_terima ?? 0);
+
+                        if ($sisa <= 0) {
+                            continue;
+                        }
+
+                        ListPenerimaan::create([
+                            'id' => Str::uuid(),
+                            'code_data' => $newCodeData,
+                            'nomor_penerimaan' => $nomor_penerimaan,
+                            'nomor_pembelian' => $nomor_pembelian,
+                            'tanggal' => $tgl_transaksi,
+                            'kode_barang' => $list->kode_barang,
+
+                            /*
+                            * Tetap mengikuti desain lama:
+                            * jumlah_beli pada ListPenerimaan adalah
+                            * sisa qty pada saat penerimaan dibuat.
+                            */
+                            'jumlah_beli' => $sisa,
+
+                            'jumlah_terima' => 0,
+                            'kode_satuan' => $list->kode_satuan,
+                            'kode_kantor' => $list->kode_kantor,
+                            'kode_user' => $list->kode_user,
+                        ]);
+                    }
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | 13. Cari Detail Penerimaan
+                |
+                | PENTING:
+                | kode_barang + jumlah_beli
+                |
+                | Sehingga:
+                |
+                | ACCELERA qty 5
+                | ACCELERA qty 10
+                |
+                | tidak tertukar.
+                |--------------------------------------------------------------------------
+                */
+                $list_penerimaan = ListPenerimaan::where(
+                        'kode_kantor',
+                        $viewadmin->kode_kantor
+                    )
+                    ->where(
+                        'nomor_penerimaan',
+                        $nomor_penerimaan
+                    )
+                    ->where(
+                        'kode_barang',
+                        $kode_barang
+                    )
+                    ->where(
+                        'jumlah_beli',
+                        $qty_beli
+                    )
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$list_penerimaan) {
+
+                    return response()->json([
+                        'status_message' => 'error',
+                        'note' => 'Detail penerimaan tidak ditemukan. Kode barang dan jumlah beli tidak cocok.',
+                        'results' => $object
+                    ]);
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | 14. Jumlah penerimaan lama
+                |--------------------------------------------------------------------------
+                */
+                $qty_terima_lama = (float) (
+                    $list_penerimaan->jumlah_terima ?? 0
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | 15. Hitung delta
+                |
+                | Contoh:
+                |
+                | Sebelumnya 5
+                | Sekarang   7
+                |
+                | delta = +2
+                |
+                | Sebelumnya 7
+                | Sekarang   5
+                |
+                | delta = -2
+                |
+                | Ini penting agar HistoryStock tidak dobel.
+                |--------------------------------------------------------------------------
+                */
+                $delta_qty = $qty_terima_in - $qty_terima_lama;
+
+                /*
+                |--------------------------------------------------------------------------
+                | 16. Update Detail Penerimaan
+                |--------------------------------------------------------------------------
+                */
+                $list_penerimaan->update([
+                    'jumlah_terima' => $qty_terima_in,
+                    'tanggal' => $tgl_transaksi,
+                ]);
+
+                /*
+                |--------------------------------------------------------------------------
+                | 17. Update Jumlah Terima pada Pembelian
+                |
+                | Hanya baris pembelian yang bersangkutan.
+                |
+                | Jadi:
+                |
+                | ACCELERA qty 5  -> update baris qty 5
+                | ACCELERA qty 10 -> update baris qty 10
+                |--------------------------------------------------------------------------
+                */
+                $jumlah_terima_baru =
+                    $jumlah_terima_lama + $delta_qty;
+
+                /*
+                * Pengaman agar tidak negatif.
+                */
+                if ($jumlah_terima_baru < 0) {
+                    $jumlah_terima_baru = 0;
+                }
+
+                if ($jumlah_terima_baru > $jumlah_beli_po) {
+                    return response()->json([
+                        'status_message' => 'error',
+                        'note' => 'Jumlah penerimaan melebihi jumlah pembelian',
+                        'results' => $object
+                    ]);
+                }
+
+                $get_list_po->update([
+                    'jumlah_terima' => $jumlah_terima_baru
+                ]);
+
+                /*
+                |--------------------------------------------------------------------------
+                | 18. Ambil Satuan
+                |
+                | Gunakan satuan dari baris ListPembelian.
+                | Ini lebih aman daripada hanya memakai request.
+                |--------------------------------------------------------------------------
+                */
+                $kode_satuan = $get_list_po->kode_satuan;
+
+                $getdata_satuan = Satuan::where(
+                    'id',
+                    $kode_satuan
+                )->first();
+
+                if (!$getdata_satuan) {
+
+                    return response()->json([
+                        'status_message' => 'error',
+                        'note' => 'Satuan barang tidak ditemukan',
+                        'results' => $object
+                    ]);
+                }
+
+                $isi_satuan = (float) ($getdata_satuan->isi ?? 1);
+
+                /*
+                |--------------------------------------------------------------------------
+                | 19. Update History Stock
+                |
+                | delta_qty digunakan, bukan qty penerimaan penuh.
+                |
+                | Contoh:
+                |
+                | pertama simpan 10 -> +10
+                | simpan ulang 10   -> +0
+                | ubah 10 ke 12     -> +2
+                | ubah 12 ke 8      -> -4
+                |--------------------------------------------------------------------------
+                */
+                if ($delta_qty != 0) {
+
+                    $delta_isi = $delta_qty * $isi_satuan;
+
+                    $history = HistoryStock::where(
+                            'kode_kantor',
+                            $viewadmin->kode_kantor
+                        )
+                        ->where(
+                            'nomor',
+                            $nomor_penerimaan
+                        )
+                        ->where(
+                            'kode_barang',
+                            $kode_barang
+                        )
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$history) {
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Jika ini penerimaan pertama untuk barang tersebut.
+                        |--------------------------------------------------------------------------
+                        */
+                        HistoryStock::create([
+                            'id' => Str::uuid(),
+                            'code_data' => $newCodeData,
+                            'nomor' => $nomor_penerimaan,
+                            'kode_barang' => $kode_barang,
+                            'tanggal' => $tgl_transaksi,
+
+                            /*
+                            * delta bisa positif maupun negatif.
+                            * Pada pembuatan pertama normalnya positif.
+                            */
+                            'masuk' => $delta_isi,
+                            'keluar' => 0,
+
+                            'ket' => $keterangan,
+                            'kode_gudang' => $kode_gudang,
+                            'kode_kantor' => $viewadmin->kode_kantor,
+                            'kode_user' => $viewadmin->id,
+                        ]);
+
+                    } else {
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | History sudah ada.
+                        |
+                        | Jangan overwrite dengan qty baru.
+                        | Tambahkan delta.
+                        |--------------------------------------------------------------------------
+                        */
+                        $history->update([
+                            'masuk' => (float) $history->masuk + $delta_isi,
+                            'tanggal' => $tgl_transaksi,
+                        ]);
+                    }
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | 20. Activity
+                |--------------------------------------------------------------------------
+                */
+                Activity::create([
+                    'id' => Str::uuid(),
+                    'code_data' => $newCodeData,
+                    'kode_user' => $viewadmin->id,
+                    'activity' => 'Penerimaan barang [' .
+                        $nomor_pembelian .
+                        ' - ' .
+                        $nomor_penerimaan .
+                        ']',
+                    'kode_kantor' => $viewadmin->kode_kantor,
+                ]);
+
+                /*
+                |--------------------------------------------------------------------------
+                | 21. Response
+                |--------------------------------------------------------------------------
+                */
+                return response()->json([
+                    'status_message' => 'success',
+                    'note' => 'Data berhasil disimpan',
+                    'id_data' => $savedata->id,
+                    'results' => $object,
+                    'code' => $newCodeData,
+                    'nomor_penerimaan' => $nomor_penerimaan,
+                    'kode_barang' => $kode_barang,
+                    'qty_pembelian' => $qty_beli,
+                    'qty_terima' => $qty_terima_in,
+                ]);
+            });
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'status_message' => 'error',
+                'note' => 'Data gagal disimpan: ' . $e->getMessage(),
+                'results' => $object
+            ]);
+        }
+    }
+
+
 
     public function viewpenerimaan($request)
     {

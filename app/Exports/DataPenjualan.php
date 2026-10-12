@@ -2,9 +2,6 @@
 
 namespace App\Exports;
 
-
-require '../vendor/autoload.php';
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
@@ -48,35 +45,38 @@ class DataPenjualan implements FromView, WithColumnFormatting
 
         $vd = $request->filled('vd') ? $request->vd : 20;
 
-    	if(empty(session('key_token_perdana'))){
-    		return redirect('logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
-    	}else{ 
-            $get_user = app('App\Http\Controllers\ApiController')->getadmin($request);           
-            $get_user = is_array($get_user) ? $get_user : $get_user->getData(true);  
-            $res_user = $get_user['results'][0]['detailadmin'][0];
-
-            Carbon::setLocale('en');
-
-            $datefilterstart = Carbon::now()->modify("-30 days")->format('Y-m-d') . ' 00:00:00';
-            $datefilterend = Carbon::now()->modify("0 days")->format('Y-m-d') . ' 23:59:59';
-
-            if($request->searchdate != ''){
-                $getsearchdate = explode ("sd",$request->searchdate);
-                $datefilterstart = Carbon::parse($getsearchdate[0])->format('Y-m-d') . ' 00:00:00';
-                $datefilterend = Carbon::parse($getsearchdate[1])->format('Y-m-d') . ' 23:59:59';
-            }
-
-            $request['vd'] = '999999999999999';
-            $request['searchdate'] = $datefilterstart.'sd'.$datefilterend;
-            $request['type'] = 'export';
-            
-            $response = app('App\Services\ApiServicePenjualan')->historypenjualan($request);
-            $results = is_array($response) ? $response : $response->getData(true); 
-
-            // return $results;
-
-            return view('admin.AdminOne.menupenjualan.exportdata.historypenjualan',['url_api' => $url_api,'app' => 'penjualanmenu','url_active' => 'penjualanbarang','request' => $request,'res_user' => $res_user,'results' => $results['results']['list'],'listdata' => $results['results']]);
+        if (empty(session('key_token_perdana'))) {
+            throw new \RuntimeException(
+                'Session berakhir. Silakan login kembali.'
+            );
         }
+
+        // Lanjutkan proses export seperti sebelumnya
+        $get_user = app('App\Http\Controllers\ApiController')->getadmin($request);           
+        $get_user = is_array($get_user) ? $get_user : $get_user->getData(true);  
+        $res_user = $get_user['results'][0]['detailadmin'][0];
+
+        Carbon::setLocale('en');
+
+        $datefilterstart = Carbon::now()->modify("-30 days")->format('Y-m-d') . ' 00:00:00';
+        $datefilterend = Carbon::now()->modify("0 days")->format('Y-m-d') . ' 23:59:59';
+
+        if($request->searchdate != ''){
+            $getsearchdate = explode ("sd",$request->searchdate);
+            $datefilterstart = Carbon::parse($getsearchdate[0])->format('Y-m-d') . ' 00:00:00';
+            $datefilterend = Carbon::parse($getsearchdate[1])->format('Y-m-d') . ' 23:59:59';
+        }
+
+        $request['vd'] = '999999999999999';
+        $request['searchdate'] = $datefilterstart.'sd'.$datefilterend;
+        $request['type'] = 'export';
+        
+        $response = app('App\Services\ApiServicePenjualan')->historypenjualan($request);
+        $results = is_array($response) ? $response : $response->getData(true); 
+
+        // return $results;
+
+        return view('admin.AdminOne.menupenjualan.exportdata.historypenjualan',['url_api' => $url_api,'app' => 'penjualanmenu','url_active' => 'penjualanbarang','request' => $request,'res_user' => $res_user,'results' => $results['results']['list'],'listdata' => $results['results']]);
     }
 
     public function columnFormats(): array
