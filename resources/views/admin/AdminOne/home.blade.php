@@ -127,6 +127,80 @@
                                 </div>
                             </div>
                         @endif
+
+                        @if($level_user['historykas'] == 'Yes')
+                            <div class="col-md-12 bg_con_dash">
+                                <!-- <div class="col-md-12 hd_page_main">Penjualan</div> -->
+                                <div class="col-md-12 _con_dash">
+                                    <div class="row bg_con_dash">
+                                        <div class="col-md-3 _con_dash">
+                                            <div class="col-md-12 bg_con_dash">
+                                                <div class="col-md-12 con_dash">
+                                                    <div class="hd_con_dash">Kas Masuk Hari Ini</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;"><?php echo number_format($listdata['summary_kasmasuk_hari'],0,",",".") ?> Transaksi</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;">Rp.<?php echo number_format($listdata['summary_kasmasuk_nilai_hari'],2,",",".") ?></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 _con_dash">
+                                            <div class="col-md-12 bg_con_dash">
+                                                <div class="col-md-12 con_dash">
+                                                    <div class="hd_con_dash">Kas Masuk Bulan Ini</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;"><?php echo number_format($listdata['summary_kasmasuk_bln'],0,",",".") ?> Transaksi</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;">Rp.<?php echo number_format($listdata['summary_kasmasuk_nilai_bln'],2,",",".") ?></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 _con_dash">
+                                            <div class="col-md-12 bg_con_dash">
+                                                <div class="col-md-12 con_dash">
+                                                    <div class="hd_con_dash">Kas Masuk Tahun Ini</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;"><?php echo number_format($listdata['summary_kasmasuk_thn'],0,",",".") ?> Transaksi</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;">Rp.<?php echo number_format($listdata['summary_kasmasuk_nilai_thn'],2,",",".") ?></div>
+                                                </div>
+                                            </div>
+                                        </div>  
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($level_user['historykas'] == 'Yes')
+                            <div class="col-md-12 bg_con_dash">
+                                <!-- <div class="col-md-12 hd_page_main">Penjualan</div> -->
+                                <div class="col-md-12 _con_dash">
+                                    <div class="row bg_con_dash">
+                                        <div class="col-md-3 _con_dash">
+                                            <div class="col-md-12 bg_con_dash">
+                                                <div class="col-md-12 con_dash">
+                                                    <div class="hd_con_dash">Kas Keluar Hari Ini</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;"><?php echo number_format($listdata['summary_kaskeluar_hari'],0,",",".") ?> Transaksi</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;">Rp.<?php echo number_format($listdata['summary_kaskeluar_nilai_hari'],2,",",".") ?></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 _con_dash">
+                                            <div class="col-md-12 bg_con_dash">
+                                                <div class="col-md-12 con_dash">
+                                                    <div class="hd_con_dash">Kas Keluar Bulan Ini</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;"><?php echo number_format($listdata['summary_kaskeluar_bln'],0,",",".") ?> Transaksi</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;">Rp.<?php echo number_format($listdata['summary_kaskeluar_nilai_bln'],2,",",".") ?></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 _con_dash">
+                                            <div class="col-md-12 bg_con_dash">
+                                                <div class="col-md-12 con_dash">
+                                                    <div class="hd_con_dash">Kas Keluar Tahun Ini</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;"><?php echo number_format($listdata['summary_kaskeluar_thn'],0,",",".") ?> Transaksi</div>
+                                                    <div class="val_con_dash _data" style="font-size: 16px; font-weight: 600;">Rp.<?php echo number_format($listdata['summary_kaskeluar_nilai_thn'],2,",",".") ?></div>
+                                                </div>
+                                            </div>
+                                        </div>  
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                       
                         <!-- <div class="col-md-12 bg_con_dash">
                             <div class="col-md-12 hd_page_main">Grafik Jumlah Pembelian & Penjualan Bulan Ini</div>
@@ -335,6 +409,8 @@
 						// 		colorByPoint: true,
 						// 	}]
 						// });
+
+                        
 Highcharts.setOptions({
 
     chart: {
